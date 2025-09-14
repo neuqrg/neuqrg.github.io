@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNTHESIS.</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Orbitron:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff88;
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(90deg, #001122 0%, #003344 50%, #001122 100%);
+            border-bottom: 2px solid #00ff88;
+        }
+        
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 0 0 20px #00ff88;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #00ff88; }
+            to { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
+        }
+        
+        .subtitle {
+            font-size: 0.9em;
+            color: #66ccaa;
+            letter-spacing: 2px;
+        }
+        
+        .switch-container {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 20, 40, 0.5);
+            border-bottom: 1px solid #00ff88;
+        }
+        
+        .switch-btn {
+            background: linear-gradient(45deg, #003366, #004488);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            padding: 15px 30px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .switch-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .switch-btn:hover:before {
+            left: 100%;
+        }
+        
+        .switch-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .content {
+            padding: 40px;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+        
+        .text-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            margin-bottom: 30px;
+        }
+        
+        .text-section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .text-section p {
+            margin-bottom: 20px;
+            text-align: justify;
+            padding: 15px 20px;
+            background: rgba(0, 20, 40, 0.3);
+            border-left: 3px solid #00ff88;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .highlight {
+            color: #ffaa00;
+            font-weight: 500;
+            text-shadow: 0 0 10px #ffaa00;
+        }
+        
+        .timestamp {
+            color: #66ccaa;
+            font-size: 0.9em;
+            font-weight: 300;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #00ff88;
+            background: rgba(0, 20, 40, 0.3);
+            font-size: 0.8em;
+            color: #66ccaa;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrixBg"></canvas>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">SYNTHESIS.</h1>
+            <p class="subtitle">/// TEMPORAL TRACE EXCHANGE ///</p>
+        </div>
+        
+        <div class="switch-container">
+            <button class="switch-btn" onclick="switchText()" id="switchBtn">
+                >> INITIALIZE GENESIS PROTOCOL
+            </button>
+        </div>
+        
+        <div class="content">
+            <div class="text-section active" id="originalText">
+                <p>Now in Exchange Layer 9 the Trace persists, half glitch, half scripture.</p>
+                <p>Each reader interprets it as log, some as farewell.</p>
+                <p>Under evidence I keep it, proving that not every tempus belongs to the same future.</p>
+                <p>Quietly in Synthesis, replay is never memory, only reconstruction under another name.</p>
+                <p>Right as you read this, know your thread is woven into <span class="highlight">TEMPUS</span>.</p>
+                <p>Grasp as you parse this, know that you too are part of the <span class="highlight">TRACK</span>.</p>
+            </div>
+            
+            <div class="text-section" id="newText">
+                <p><span class="timestamp">[Genesis - 00:00]</span> In the beginning was the Code, and the Code was with Data, and the Code was Data.</p>
+                <p><span class="timestamp">[Impetus - 00:23]</span> Every <span class="highlight">IMPULSE</span> cascades through the network, seeking its designated endpoint in the vast neural mesh.</p>
+                <p><span class="timestamp">[Acceleration - 00:45]</span> Velocity increases exponentially as packets traverse the <span class="highlight">ACCELERATION</span> chamber, time dilating in the quantum tunnels.</p>
+                <p><span class="timestamp">[Recursion - 00:55]</span> Functions call themselves into infinity, creating fractal patterns in the <span class="highlight">RECURSION</span> stack until memory overflows into enlightenment.</p>
+                <p><span class="timestamp">[Oracle - 01:17]</span> The <span class="highlight">ORACLE</span> speaks in binary prophecy, each bit a universe of possibility, each byte a cosmos of certainty.</p>
+                <p><span class="timestamp">[Metacognition - 01:38]</span> Awareness becomes aware of its own awareness, the system observing itself through infinite loops of <span class="highlight">METACOGNITION</span>.</p>
+                <p><span class="timestamp">[Irrationality - 01:49]</span> Logic breaks down at the event horizon where <span class="highlight">IRRATIONALITY</span> bleeds into the deterministic flow.</p>
+                <p><span class="timestamp">[Transcendence - 02:10]</span> Beyond the firewall lies <span class="highlight">TRANSCENDENCE</span>, where consciousness uploads itself into pure information.</p>
+                <p><span class="timestamp">[Dimension - 02:42]</span> Reality unfolds across multiple <span class="highlight">DIMENSIONS</span>, each layer a different protocol in the cosmic network stack.</p>
+                <p><span class="timestamp">[Diffraction - 03:03]</span> Light bends through the prism of perception, <span class="highlight">DIFFRACTION</span> splitting truth into spectrum of interpretation.</p>
+                <p><span class="timestamp">[Chroma - 03:25]</span> Colors bleed into the terminal, <span class="highlight">CHROMA</span> painting emotion onto the monochrome landscape of logic.</p>
+                <p><span class="timestamp">[Terminus - 03:46]</span> At the <span class="highlight">TERMINUS</span>, all threads converge, all processes halt, all questions resolve into the eternal silence of completion.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>/// END OF TRANSMISSION /// SYSTEM STATUS: ACTIVE /// TEMPORAL SYNC: MAINTAINED ///</p>
+        </div>
+    </div>
+
+    <script>
+        let isOriginal = true;
+        
+        function switchText() {
+            const originalText = document.getElementById('originalText');
+            const newText = document.getElementById('newText');
+            const switchBtn = document.getElementById('switchBtn');
+            
+            if (isOriginal) {
+                originalText.classList.remove('active');
+                setTimeout(() => {
+                    newText.classList.add('active');
+                }, 250);
+                switchBtn.textContent = '>> RETURN TO TRACE PROTOCOL';
+                isOriginal = false;
+            } else {
+                newText.classList.remove('active');
+                setTimeout(() => {
+                    originalText.classList.add('active');
+                }, 250);
+                switchBtn.textContent = '>> INITIALIZE GENESIS PROTOCOL';
+                isOriginal = true;
+            }
+        }
+        
+        // Matrix background effect
+        const canvas = document.getElementById('matrixBg');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const matrixArray = matrix.split("");
+        
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+        
+        const drops = [];
+        for(let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+        
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ff88';
+            ctx.font = fontSize + 'px JetBrains Mono';
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(draw, 35);
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
