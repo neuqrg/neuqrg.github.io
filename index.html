@@ -1,281 +1,535 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
+
+<!--- 这不是一个CTF题目，不通过阅读源码也可以完成这个谜题，试试看吧 --->
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYNTHESIS.</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Orbitron:wght@400;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SYNTHESIS.</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@300;400;500&family=Orbitron:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <script type="importmap">
+      {
+        "imports": {
+          "@tailwindcss/browser": "https://esm.sh/@tailwindcss/browser@^4.1.3"
         }
-        
-        body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-            color: #00ff88;
-            font-family: 'JetBrains Mono', monospace;
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #00ff88;
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-        }
-        
-        .header {
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(90deg, #001122 0%, #003344 50%, #001122 100%);
-            border-bottom: 2px solid #00ff88;
-        }
-        
-        .title {
-            font-family: 'Orbitron', monospace;
-            font-size: 2.5em;
-            font-weight: 700;
-            text-shadow: 0 0 20px #00ff88;
-            margin-bottom: 10px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes glow {
-            from { text-shadow: 0 0 20px #00ff88; }
-            to { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
-        }
-        
-        .subtitle {
-            font-size: 0.9em;
-            color: #66ccaa;
-            letter-spacing: 2px;
-        }
-        
-        .switch-container {
-            text-align: center;
-            padding: 30px;
-            background: rgba(0, 20, 40, 0.5);
-            border-bottom: 1px solid #00ff88;
-        }
-        
-        .switch-btn {
-            background: linear-gradient(45deg, #003366, #004488);
-            border: 2px solid #00ff88;
-            color: #00ff88;
-            padding: 15px 30px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1em;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .switch-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.3), transparent);
-            transition: left 0.5s;
-        }
-        
-        .switch-btn:hover:before {
-            left: 100%;
-        }
-        
-        .switch-btn:hover {
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
-            transform: translateY(-2px);
-        }
-        
-        .content {
-            padding: 40px;
-            line-height: 1.8;
-            font-size: 1.1em;
-        }
-        
-        .text-section {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s ease;
-            margin-bottom: 30px;
-        }
-        
-        .text-section.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .text-section p {
-            margin-bottom: 20px;
-            text-align: justify;
-            padding: 15px 20px;
-            background: rgba(0, 20, 40, 0.3);
-            border-left: 3px solid #00ff88;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .highlight {
-            color: #ffaa00;
-            font-weight: 500;
-            text-shadow: 0 0 10px #ffaa00;
-        }
-        
-        .timestamp {
-            color: #66ccaa;
-            font-size: 0.9em;
-            font-weight: 300;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            border-top: 1px solid #00ff88;
-            background: rgba(0, 20, 40, 0.3);
-            font-size: 0.8em;
-            color: #66ccaa;
-        }
-        
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.1;
-        }
-    </style>
+      }
+    </script>
+  <link rel="stylesheet" href="/index.css">
 </head>
+
 <body>
+  <!-- 阶段一: Synthesis 加载器 -->
+  <div id="synthesis-loader">
     <canvas class="matrix-bg" id="matrixBg"></canvas>
-    
     <div class="container">
-        <div class="header">
-            <h1 class="title">SYNTHESIS.</h1>
-            <p class="subtitle">/// TEMPORAL TRACE EXCHANGE ///</p>
+      <div class="header">
+        <h1 class="title">SYNTHESIS.</h1>
+        <p class="subtitle">/// TEMPORAL TRACE EXCHANGE ///</p>
+      </div>
+
+      <div class="switch-container">
+        <button class="switch-btn" id="initiate-button">
+          >> INITIALIZE GENESIS PROTOCOL
+        </button>
+      </div>
+
+      <div class="content">
+        <div class="text-section active" id="originalText">
+          <p>Now in Exchange Layer 9 the Trace persists, half glitch, half scripture.</br>
+            Each reader interprets it as log, some as farewell.</br>
+            Under evidence I keep it, proving that not every tempus belongs to the same future.</br>
+            Quietly in Synthesis, replay is never memory, only reconstruction under another name.</br>
+            Right as you read this, know your thread is woven into <span class="highlight">TEMPUS</span>.</br>
+            Grasp as you parse this, know that you too are part of the <span class="highlight">TRACK</span>.</p>
         </div>
-        
-        <div class="switch-container">
-            <button class="switch-btn" onclick="switchText()" id="switchBtn">
-                >> INITIALIZE GENESIS PROTOCOL
-            </button>
+      </div>
+
+      <div class="footer">
+        <p>/// END OF TRANSMISSION /// SYSTEM STATUS: ACTIVE /// TEMPORAL SYNC: MAINTAINED ///</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 阶段二: Win98 加载器 -->
+  <div id="win98-loader">
+    <img src="static/Mindose25.png" alt="Mindose25 Logo" class="win98-logo" />
+    <div class="win98-progress-bar-container">
+      <div class="win98-progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- 关机界面 -->
+  <div id="shutdown-screen"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000080; color: white; justify-content: center; align-items: center; text-align: center; z-index: 1000; font-family: 'Courier New', Courier, monospace;">
+    <div>
+      <p style="font-size: 1.5rem;">正在关机...</p>
+      <p style="margin-top: 20px;">现在可以安全地关闭计算机了。</p>
+    </div>
+  </div>
+
+
+  <div id="desktop-environment" style="display: none;">
+    <div class="desktop" id="desktop">
+      <!-- Desktop Icons -->
+      <div class="icon" data-app="myComputer">
+        <img src="icons/png/computer-5.png" alt="我的电脑" />
+        <span>我的电脑</span>
+      </div>
+      <div class="icon" data-app="notepad">
+        <img src="icons/png/notepad_file-2.png" alt="记事本" />
+        <span>记事本</span>
+      </div>
+      <div class="icon" data-app="paint">
+        <img src="icons/png/paint_file-5.png" alt="画图" />
+        <span>画图</span>
+      </div>
+      <div class="icon" data-app="qicq">
+        <img src="icons/png/user_computer_pair-0.png" alt="QICQ" />
+        <span>QICQ</span>
+      </div>
+      <div class="icon" data-app="minesweeper">
+        <img src="icons/png/minesweeper-1.png" alt="扫雷" style="width: 48px; height: 48px" />
+        <span>扫雷</span>
+      </div>
+      <div class="icon" data-app="mediaPlayer">
+        <img src="icons/png/media_player-0.png" alt="媒体播放器" style="width: 48px; height: 48px" />
+        <span>媒体播放器</span>
+      </div>
+      <div class="icon" data-app="neuqBrowser">
+        <img src="static/neuq_icon.png" alt="东北大学秦皇岛分校" style="width: 48px; height: 48px" />
+        <span>东北大学秦皇岛分校</span>
+      </div>
+      <div class="icon" data-app="timelineControl">
+        <img src="icons/png/channels-0.png" alt="时空奇点" />
+        <span>时空奇点</span>
+      </div>
+
+
+      <!-- Windows -->
+      <div class="window resizable" id="myComputer">
+        <div class="window-titlebar">
+          <span class="window-title">我的电脑</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
         </div>
-        
-        <div class="content">
-            <div class="text-section active" id="originalText">
-                <p>Now in Exchange Layer 9 the Trace persists, half glitch, half scripture.</p>
-                <p>Each reader interprets it as log, some as farewell.</p>
-                <p>Under evidence I keep it, proving that not every tempus belongs to the same future.</p>
-                <p>Quietly in Synthesis, replay is never memory, only reconstruction under another name.</p>
-                <p>Right as you read this, know your thread is woven into <span class="highlight">TEMPUS</span>.</p>
-                <p>Grasp as you parse this, know that you too are part of the <span class="highlight">TRACK</span>.</p>
+        <div class="window-content" style="background-color: white">
+          <div id="c-drive-icon" class="window-icon">
+            <img src="icons/png/cd_drive-0.png" alt="C 盘" />
+            <span>C:</span>
+          </div>
+          <div id="c-drive-content" style="display: none">
+            <div id="secret-image-icon" class="window-icon">
+              <img src="icons/png/paint_file-0.png" alt="秘密文件" />
+              <span>不要给任何<br />人看.jpg</span>
             </div>
-            
-            <div class="text-section" id="newText">
-                <p><span class="timestamp">[Genesis - 00:00]</span> In the beginning was the Code, and the Code was with Data, and the Code was Data.</p>
-                <p><span class="timestamp">[Impetus - 00:23]</span> Every <span class="highlight">IMPULSE</span> cascades through the network, seeking its designated endpoint in the vast neural mesh.</p>
-                <p><span class="timestamp">[Acceleration - 00:45]</span> Velocity increases exponentially as packets traverse the <span class="highlight">ACCELERATION</span> chamber, time dilating in the quantum tunnels.</p>
-                <p><span class="timestamp">[Recursion - 00:55]</span> Functions call themselves into infinity, creating fractal patterns in the <span class="highlight">RECURSION</span> stack until memory overflows into enlightenment.</p>
-                <p><span class="timestamp">[Oracle - 01:17]</span> The <span class="highlight">ORACLE</span> speaks in binary prophecy, each bit a universe of possibility, each byte a cosmos of certainty.</p>
-                <p><span class="timestamp">[Metacognition - 01:38]</span> Awareness becomes aware of its own awareness, the system observing itself through infinite loops of <span class="highlight">METACOGNITION</span>.</p>
-                <p><span class="timestamp">[Irrationality - 01:49]</span> Logic breaks down at the event horizon where <span class="highlight">IRRATIONALITY</span> bleeds into the deterministic flow.</p>
-                <p><span class="timestamp">[Transcendence - 02:10]</span> Beyond the firewall lies <span class="highlight">TRANSCENDENCE</span>, where consciousness uploads itself into pure information.</p>
-                <p><span class="timestamp">[Dimension - 02:42]</span> Reality unfolds across multiple <span class="highlight">DIMENSIONS</span>, each layer a different protocol in the cosmic network stack.</p>
-                <p><span class="timestamp">[Diffraction - 03:03]</span> Light bends through the prism of perception, <span class="highlight">DIFFRACTION</span> splitting truth into spectrum of interpretation.</p>
-                <p><span class="timestamp">[Chroma - 03:25]</span> Colors bleed into the terminal, <span class="highlight">CHROMA</span> painting emotion onto the monochrome landscape of logic.</p>
-                <p><span class="timestamp">[Terminus - 03:46]</span> At the <span class="highlight">TERMINUS</span>, all threads converge, all processes halt, all questions resolve into the eternal silence of completion.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="window resizable" id="notepad">
+        <div class="window-titlebar">
+          <span class="window-title">记事本</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content">
+          <div class="notepad-menu">
+            <button id="notepad-import-button" class="notepad-button">导入</button>
+            <button id="notepad-save-button" class="notepad-button">保存</button>
+          </div>
+          <textarea class="notepad-textarea" style="
+                width: 100%;
+                height: 100%;
+                border: none;
+                outline: none;
+                resize: none;
+                background-color: white;
+              "></textarea>
+        </div>
+      </div>
+
+      <div class="window resizable" id="paint">
+        <div class="window-titlebar">
+          <span class="window-title">画图</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content" style="
+              display: flex;
+              flex-direction: column;
+              padding: 0;
+              margin: 0;
+              background-color: #c0c0c0;
+            ">
+          <div class="paint-toolbar">
+            <div class="paint-colors">
+              <button class="paint-color-swatch" data-color="black" style="background-color: black"></button>
+              <button class="paint-color-swatch" data-color="red" style="background-color: red"></button>
+              <button class="paint-color-swatch" data-color="blue" style="background-color: blue"></button>
+              <button class="paint-color-swatch" data-color="green" style="background-color: green"></button>
+              <button class="paint-color-swatch" data-color="yellow" style="background-color: yellow"></button>
+              <button class="paint-color-swatch" data-color="white" style="background-color: white">
+                橡
+              </button>
             </div>
+            <div class="paint-brush-sizes">
+              <button class="paint-size-button" data-size="2">小</button>
+              <button class="paint-size-button" data-size="5">中</button>
+              <button class="paint-size-button" data-size="10">大</button>
+            </div>
+            <button class="paint-clear-button">清除</button>
+            <button class="paint-save-button">保存</button>
+            <button id="paint-glitch-button" class="paint-glitch-button"><span class="glitch-text">错 误</span></button>
+          </div>
+          <canvas id="paint-canvas"
+            style="flex-grow: 1; background-color: white; cursor: crosshair; display: block"></canvas>
         </div>
-        
-        <div class="footer">
-            <p>/// END OF TRANSMISSION /// SYSTEM STATUS: ACTIVE /// TEMPORAL SYNC: MAINTAINED ///</p>
+      </div>
+
+      <div class="window" id="qicq" style="width: 280px; height: 400px;">
+        <div class="window-titlebar">
+          <span class="window-title">QICQ</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
         </div>
+        <div class="window-content qicq-content">
+          <div class="qicq-login-view">
+            <div class="qicq-header">
+              <h2>QICQ</h2>
+            </div>
+            <div class="qicq-form">
+              <div class="qicq-input-group">
+                <label for="qicq-id">QICQ号码:</label>
+                <input type="text" id="qicq-id" value="10001" readonly>
+              </div>
+              <div class="qicq-input-group">
+                <label for="qicq-pw">QICQ密码:</label>
+                <input type="password" id="qicq-pw">
+              </div>
+              <div class="qicq-status-selector">
+                <label>状态:</label>
+                <select>
+                  <option>在线</option>
+                  <option>隐身</option>
+                  <option>离开</option>
+                </select>
+              </div>
+              <button class="qicq-login-btn">登 录</button>
+              <p class="qicq-status-message"></p>
+            </div>
+            <div class="qicq-footer">
+              <a href="#" id="qicq-apply-link">申请号码</a> | <a href="#" id="qicq-forgot-password-link">忘记密码</a>
+            </div>
+          </div>
+          <div id="qicq-main-view" style="display: none; width:100%; height:100%; flex-direction:column;">
+            <div class="qicq-main-header">
+              <img src="icons/png/user_world-1.png" alt="avatar" />
+              <div class="qicq-user-info">
+                <strong>冰蓝色の泪</strong>
+                <span>[在线]</span>
+              </div>
+            </div>
+            <div class="qicq-contact-list">
+              <div class="qicq-contact-category">我的群组</div>
+              <div class="qicq-contact-item" data-app="qicqChatNEUQ">
+                <img src="icons/png/msn3-5.png" alt="group icon">
+                <div>
+                  <p>NEUQ音游同好会（仮）</p>
+                </div>
+              </div>
+              <a href="https://qm.qq.com/q/ymLZwoFdq8" target="_blank" class="qicq-contact-item">
+                <img src="icons/png/msg_warning-0.png" alt="group icon">
+                <div>
+                  <p>Project Synthesis.</p>
+                </div>
+              </a>
+            </div>
+            <div class="qicq-main-footer">
+              <button>系统设置</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window resizable" id="qicqChatNEUQ" style="width: 500px; height: 450px;">
+        <div class="window-titlebar">
+          <span class="window-title">NEUQ音游同好会（仮）(227)</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content qicq-chat-window">
+          <div class="qicq-chat-history">
+            <!-- Messages will be injected by JS -->
+          </div>
+          <div class="qicq-chat-toolbar">
+            <button title="字体">A</button>
+            <button title="表情">🙂</button>
+            <button title="发送图片" disabled>🖼️</button>
+          </div>
+          <div class="qicq-chat-input-area">
+            <textarea placeholder="点击这里输入..."></textarea>
+            <div class="qicq-chat-actions">
+              <button class="qicq-chat-close-btn">关闭</button>
+              <button class="qicq-chat-send-btn">发送</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window resizable" id="minesweeper" style="width: 400px; height: 450px">
+        <div class="window-titlebar">
+          <span class="window-title">扫雷</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content minesweeper-content" style="
+              display: flex;
+              flex-direction: column;
+              padding: 0;
+              margin: 0;
+              background-color: #c0c0c0;
+            ">
+          <div class="minesweeper-controls">
+            <div class="minesweeper-info minesweeper-flag-count">🚩 10</div>
+            <button class="minesweeper-reset-button">🙂</button>
+            <div class="minesweeper-info minesweeper-timer">⏱️ 0</div>
+          </div>
+          <div class="minesweeper-hint-area">
+            <div class="minesweeper-commentary">从随便点点开始吧！</div>
+             <button class="minesweeper-cheat-button">我是音游大蛇</button>
+          </div>
+          <div class="minesweeper-grid-container">
+            <div class="minesweeper-grid" id="minesweeper-board">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window resizable" id="imageViewer" style="width: 350px; height: 300px">
+        <div class="window-titlebar">
+          <span class="window-title" id="image-viewer-title">图片查看器</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content image-viewer-content" style="
+              padding: 0;
+              overflow: hidden;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: #808080;
+            ">
+          <img id="image-viewer-img" src="" alt="图片" style="max-width: 100%; max-height: 100%; object-fit: contain" />
+        </div>
+      </div>
+
+      <div class="window resizable" id="mediaPlayer" style="width: 520px; height: 500px;">
+        <div class="window-titlebar">
+          <span class="window-title">媒体播放器</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content media-player-content">
+          <div class="media-player-url-bar">
+            <input type="text" class="media-player-input" placeholder="输入 Bilibili 视频网址 (含 BV 号)" />
+            <button class="media-player-load-button">加载</button>
+          </div>
+          <div class="media-player-video-container">
+            <div id="youtube-player-mediaPlayer">
+              <p class="media-player-status-message">正在加载播放器...</p>
+            </div>
+          </div>
+          <div class="media-player-controls-panel">
+            <div class="media-player-buttons-group">
+              <button class="media-player-control-button" id="media-player-play" title="播放">▶</button>
+              <button class="media-player-control-button" id="media-player-pause" title="暂停">❚❚</button>
+              <button class="media-player-control-button" id="media-player-stop" title="停止">■</button>
+            </div>
+            <div class="media-player-progress-bar-container-placeholder">
+              <div class="media-player-progress-bar-placeholder"></div>
+            </div>
+            <div class="media-player-volume-placeholder">
+              <span>🔊</span>
+              <div class="media-player-volume-slider-placeholder"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window" id="neuqBrowser" style="width: 800px; height: 600px;">
+        <div class="window-titlebar">
+          <span class="window-title">东北大学秦皇岛分校</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content">
+          <a href="http://www.neuq.edu.cn/" target="_blank" title="点击打开官网">
+            <img src="static/Snipaste_2025-09-18_00-27-47.png" alt="东北大学秦皇岛分校">
+          </a>
+        </div>
+      </div>
+
+      <div class="window" id="qicqPasswordRecovery" style="width: 450px; height: 420px;">
+        <div class="window-titlebar">
+          <span class="window-title">QICQ 密码恢复</span>
+          <div class="window-controls">
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content recovery-content">
+          <h3>请回答密保问题:</h3>
+          <div class="recovery-question">
+            <label for="sec-q1">1. 东北大学秦皇岛分校的英文简称（四个大写字母）</label>
+            <input type="text" id="sec-q1">
+          </div>
+          <div class="recovery-question">
+            <p>2. 你是否同意“即使世界线不同，人们也会做出相同的选择”？</p>
+            <div class="recovery-options">
+              <div>
+                <input type="radio" id="q2-op1" name="sec-q2">
+                <label for="q2-op1">是</label>
+              </div>
+              <div>
+                <input type="radio" id="q2-op2" name="sec-q2">
+                <label for="q2-op2">否</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="recovery-question">
+            <p>3. 你是否愿意留在这里？</p>
+            <div class="recovery-options">
+              <div>
+                <input type="radio" id="q3-op1" name="sec-q3">
+                <label for="q3-op1">是</label>
+              </div>
+              <div>
+                <input type="radio" id="q3-op2" name="sec-q3">
+                <label for="q3-op2">否</label>
+              </div>
+            </div>
+          </div>
+          <div class="recovery-actions">
+            <button id="recovery-submit-btn">提交</button>
+            <p id="recovery-status-message"></p>
+          </div>
+          <div id="password-reveal" style="display:none;">
+            <h4>密保问题正确！</h4>
+            <p>这是你的密码，请牢记：</p>
+            <p class="password-text">PROJECTSYNTHESIS</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="window" id="volumeControl" style="width: 250px; height: 120px;">
+        <div class="window-titlebar">
+          <span class="window-title">音量控制</span>
+          <div class="window-controls">
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content system-dialog-content">
+          <p>音频设备正常。</p>
+        </div>
+      </div>
+
+      <div class="window" id="networkStatus" style="width: 280px; height: 150px;">
+        <div class="window-titlebar">
+          <span class="window-title">连接状态</span>
+          <div class="window-controls">
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content system-dialog-content">
+          <p>已连接到：NEUQ 校园网</p>
+          <p>速度：56.0 Kbps</p>
+          <p>状态：良好</p>
+        </div>
+      </div>
+
+      <div class="window" id="timelineControl" style="width: 350px; height: 180px;">
+        <div class="window-titlebar">
+          <span class="window-title">时空奇点</span>
+          <div class="window-controls">
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content timeline-content">
+          <label for="timeline-slider">奇点漂移:</label>
+          <div class="timeline-slider-container">
+            <span>过 去</span>
+            <input type="range" id="timeline-slider" min="0" max="100">
+            <span>现在</span>
+          </div>
+          <p id="timeline-display"></p>
+        </div>
+      </div>
+      
+       <div class="window" id="calendarWindow" style="width: 250px; height: 280px;">
+        <div class="window-titlebar">
+          <span class="window-title">日期/时间 属性</span>
+          <div class="window-controls">
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content calendar-content">
+          <!-- Calendar will be generated here by JS -->
+        </div>
+      </div>
     </div>
 
-    <script>
-        let isOriginal = true;
-        
-        function switchText() {
-            const originalText = document.getElementById('originalText');
-            const newText = document.getElementById('newText');
-            const switchBtn = document.getElementById('switchBtn');
-            
-            if (isOriginal) {
-                originalText.classList.remove('active');
-                setTimeout(() => {
-                    newText.classList.add('active');
-                }, 250);
-                switchBtn.textContent = '>> RETURN TO TRACE PROTOCOL';
-                isOriginal = false;
-            } else {
-                newText.classList.remove('active');
-                setTimeout(() => {
-                    originalText.classList.add('active');
-                }, 250);
-                switchBtn.textContent = '>> INITIALIZE GENESIS PROTOCOL';
-                isOriginal = true;
-            }
-        }
-        
-        // Matrix background effect
-        const canvas = document.getElementById('matrixBg');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
-        const matrixArray = matrix.split("");
-        
-        const fontSize = 10;
-        const columns = canvas.width / fontSize;
-        
-        const drops = [];
-        for(let x = 0; x < columns; x++) {
-            drops[x] = 1;
-        }
-        
-        function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = '#00ff88';
-            ctx.font = fontSize + 'px JetBrains Mono';
-            
-            for(let i = 0; i < drops.length; i++) {
-                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                
-                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-        
-        setInterval(draw, 35);
-        
-        // Resize handler
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-    </script>
+    <!-- Start Menu -->
+    <div class="start-menu" id="start-menu">
+      <div class="start-menu-item" data-app="myComputer">我的电脑</div>
+      <div class="start-menu-item" data-app="notepad">记事本</div>
+      <div class="start-menu-item" data-app="paint">画图</div>
+      <div class="start-menu-item" data-app="qicq">QICQ</div>
+      <div class="start-menu-item" data-app="minesweeper">扫雷</div>
+      <div class="start-menu-item" data-app="mediaPlayer">媒体播放器</div>
+      <div class="start-menu-item" data-app="neuqBrowser">东北大学秦皇岛分校</div>
+      <div class="start-menu-separator"></div>
+      <div class="start-menu-item" data-app="logoff">注销(L)</div>
+      <div class="start-menu-item" data-app="shutdown">关闭计算机(U)</div>
+    </div>
+
+    <!-- Taskbar -->
+    <div id="taskbar">
+      <button id="start-button">
+        <img src="icons/png/windows-0.png" alt="开始" />
+        <span>开始</span>
+      </button>
+      <div id="taskbar-apps">
+      </div>
+      <div id="taskbar-tray">
+        <img src="icons/png/computer_sound-2.png" alt="音量" class="tray-icon" id="volume-icon">
+        <img src="icons/png/network_cool_two_pcs-0.png" alt="网络" class="tray-icon" id="network-icon">
+      </div>
+      <div id="taskbar-clock"></div>
+    </div>
+  </div>
+  <script type="module" src="/NEUQ.js"></script>
 </body>
+
 </html>

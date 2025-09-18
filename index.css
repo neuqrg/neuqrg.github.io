@@ -1,0 +1,1565 @@
+/* 这不是一个CTF题目，不通过阅读源码也可以完成这个谜题，试试看吧 */
+
+/* Base styles */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #008080; /* Teal background */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbars */
+  color: black;
+}
+
+/* --- New Synthesis Loader Styles --- */
+#synthesis-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    transition: opacity 0.7s ease-in-out;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    color: #00ff88;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex; /* Use flex to center container */
+    justify-content: center;
+    align-items: flex-start; /* Changed from center to fix visibility */
+    padding-top: 5vh; /* Added padding to push content down from top edge */
+}
+#synthesis-loader .container {
+    max-width: 1200px;
+    width: 95%;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ff88;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    max-height: 90vh; /* Prevent container from being too tall */
+    display: flex;
+    flex-direction: column;
+}
+#synthesis-loader .header {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(90deg, #001122 0%, #003344 50%, #001122 100%);
+    border-bottom: 2px solid #00ff88;
+}
+#synthesis-loader .title {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5em;
+    font-weight: 700;
+    text-shadow: 0 0 20px #00ff88;
+    margin-bottom: 10px;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+@keyframes glow {
+    from { text-shadow: 0 0 20px #00ff88; }
+    to { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
+}
+#synthesis-loader .subtitle {
+    font-size: 0.9em;
+    color: #66ccaa;
+    letter-spacing: 2px;
+}
+#synthesis-loader .switch-container {
+    text-align: center;
+    padding: 30px;
+    background: rgba(0, 20, 40, 0.5);
+    border-bottom: 1px solid #00ff88;
+}
+#synthesis-loader .switch-btn {
+    background: linear-gradient(45deg, #003366, #004488);
+    border: 2px solid #00ff88;
+    color: #00ff88;
+    padding: 15px 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1em;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+}
+#synthesis-loader .switch-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.3), transparent);
+    transition: left 0.5s;
+}
+#synthesis-loader .switch-btn:hover:before {
+    left: 100%;
+}
+#synthesis-loader .switch-btn:hover {
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
+    transform: translateY(-2px);
+}
+#synthesis-loader .content {
+    padding: 40px;
+    line-height: 1.8;
+    font-size: 1.1em;
+    overflow-y: auto; /* Allow content to scroll if it overflows */
+    flex-grow: 1;
+}
+#synthesis-loader .text-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+    margin-bottom: 30px;
+    display: none;
+}
+#synthesis-loader .text-section.active {
+    opacity: 1;
+    transform: translateY(0);
+    display: block;
+}
+#synthesis-loader .text-section p {
+    margin-bottom: 20px;
+    text-align: justify;
+    padding: 15px 20px;
+    background: rgba(0, 20, 40, 0.3);
+    border-left: 3px solid #00ff88;
+    border-radius: 0 8px 8px 0;
+}
+#synthesis-loader .highlight {
+    color: #ffaa00;
+    font-weight: 500;
+    text-shadow: 0 0 10px #ffaa00;
+}
+#synthesis-loader .timestamp {
+    color: #66ccaa;
+    font-size: 0.9em;
+    font-weight: 300;
+}
+#synthesis-loader .footer {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #00ff88;
+    background: rgba(0, 20, 40, 0.3);
+    font-size: 0.8em;
+    color: #66ccaa;
+}
+#synthesis-loader .matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.2;
+}
+
+/* --- Win98 Loader --- */
+#win98-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    transition: opacity 0.7s ease-in-out;
+    display: none; /* Initially hidden */
+}
+
+.win98-logo {
+    width: 300px;
+    height: auto;
+    margin-bottom: 30px;
+}
+
+.win98-progress-bar-container {
+    width: 300px;
+    height: 20px;
+    background-color: #555;
+    border: 2px solid #c0c0c0;
+}
+
+.win98-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #000080, #1e90ff);
+    animation: load-win98 2.5s ease-out forwards;
+}
+
+@keyframes load-win98 {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+/* Desktop environment container */
+#desktop-environment {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  display: none; /* Initially hidden until boot sequence is complete */
+}
+
+/* Desktop styles */
+.desktop {
+  width: 100%;
+  height: calc(100% - 36px); /* Full height minus taskbar */
+  overflow: hidden;
+  position: relative;
+  cursor: default;
+  padding: 10px;
+  display: flex;
+  flex-direction: column; /* This is the key for vertical layout */
+  flex-wrap: wrap;       /* Allows wrapping into new columns */
+  align-content: flex-start; /* Start placing items from the left */
+  gap: 20px; /* Increased space between icons */
+  box-sizing: border-box;
+}
+
+/* Icon styles */
+.icon {
+  display: flex; /* Changed from inline-flex */
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  width: 100px;
+  text-align: center;
+  margin: 0; /* Remove margin as gap is used */
+}
+
+.icon img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.icon span {
+  color: white;
+  font-size: 0.75rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 100%;
+  text-align: center;
+}
+
+/* Window styles */
+.window {
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
+  position: absolute;
+  top: 50px;
+  left: 100px;
+  width: 320px;
+  height: 240px;
+  display: none;
+  flex-direction: column;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.window.active {
+  display: flex;
+  z-index: 20;
+}
+
+.window.resizable {
+  resize: both;
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 150px;
+}
+
+.window-titlebar {
+  background-color: #000080;
+  color: white;
+  padding: 3px 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+  height: 22px;
+  box-sizing: border-box;
+}
+.window-titlebar:active {
+  cursor: grabbing;
+}
+
+.window-title {
+  margin-right: auto;
+  margin-left: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 60px);
+}
+
+.window-controls {
+  display: flex;
+  gap: 3px;
+}
+
+.window-control-button {
+  width: 16px;
+  height: 16px;
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-family: "Times New Roman", serif;
+  font-size: 0.8rem;
+  font-weight: bold;
+  line-height: 0;
+  padding: 0;
+  color: black;
+}
+
+.window-control-button:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  box-shadow: none;
+}
+
+.window-minimize { }
+.window-close { }
+
+
+.window-content {
+  padding: 2px;
+  font-size: 0.9rem;
+  flex-grow: 1;
+  overflow: auto;
+  background-color: white;
+  border: 1px inset #808080;
+  margin: 2px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Prevents flexbox overflow bugs, fixes Paint app on mobile */
+}
+
+/* Specific app content styling */
+.window-content textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  padding: 5px;
+  box-sizing: border-box;
+}
+.window-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Start Menu styles */
+.start-menu {
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+  position: fixed; /* Changed from absolute for correct positioning */
+  bottom: 36px;
+  left: 0;
+  width: 180px;
+  display: none;
+  flex-direction: column;
+  z-index: 50;
+  padding: 2px;
+}
+
+.start-menu.active {
+  display: flex;
+}
+
+.start-menu-item {
+  padding: 5px 10px 5px 25px;
+  font-size: 0.8rem;
+  color: black;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+}
+
+.start-menu-item:hover {
+  background-color: #000080;
+  color: white;
+}
+
+.start-menu-separator {
+  height: 1px;
+  background-color: #808080;
+  border-bottom: 1px solid #FFFFFF;
+  margin: 4px 2px;
+}
+
+/* Taskbar styles */
+#taskbar {
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  z-index: 40;
+  box-sizing: border-box;
+}
+
+#start-button {
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  padding: 2px 8px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  box-sizing: border-box;
+}
+
+#start-button:active {
+ border-top: 2px solid #000000;
+ border-left: 2px solid #000000;
+ border-right: 2px solid #FFFFFF;
+ border-bottom: 2px solid #FFFFFF;
+ padding: 3px 7px 1px 9px;
+}
+
+#start-button img {
+  width: 24px;
+  height: 24px;
+}
+
+#taskbar-apps {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+  align-items: center;
+  overflow: hidden;
+}
+
+.taskbar-app {
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  padding: 2px 6px;
+  margin: 0 2px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.5);
+}
+
+.taskbar-app img {
+  width: 16px;
+  height: 16px;
+}
+
+.taskbar-app.active, .taskbar-app:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  background-color: #e0e0e0;
+  box-shadow: none;
+  padding: 3px 5px 1px 7px;
+}
+
+#taskbar-tray {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  border-left: 1px solid #808080;
+  border-top: 1px solid #808080;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  margin-left: auto; /* Push tray to the right */
+  padding: 0 4px;
+}
+.tray-icon {
+  width: 16px;
+  height: 16px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+
+#taskbar-clock {
+  border: 1px inset #808080;
+  padding: 2px 8px;
+  margin-left: 4px; 
+  margin-right: 2px;
+  font-size: 0.75rem;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* Notepad button styling */
+.notepad-menu {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background-color: #C0C0C0;
+  border-bottom: 1px solid #808080;
+  flex-shrink: 0;
+}
+
+.notepad-button {
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.5);
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.notepad-button:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  box-shadow: none;
+  padding: 3px 7px 1px 9px;
+}
+
+.notepad-textarea {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  padding: 5px;
+  box-sizing: border-box;
+  background-color: white;
+  border: 1px inset #808080;
+  margin: 2px;
+  flex-grow: 1;
+  width: calc(100% - 4px);
+  resize: none;
+}
+
+
+/* --- Simple Paint App Styles --- */
+#paint .window-content {
+    padding: 0;
+    margin: 0;
+    background-color: #c0c0c0;
+    border: none;
+}
+
+.paint-toolbar {
+  background-color: #C0C0C0;
+  padding: 4px;
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping for more buttons */
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #808080;
+  height: auto;
+  min-height: 38px;
+  flex-shrink: 0;
+}
+
+.paint-colors, .paint-brush-sizes {
+  display: flex;
+  gap: 3px;
+  border: 1px inset #808080;
+  padding: 2px;
+}
+
+.paint-color-swatch {
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.5);
+}
+
+.paint-color-swatch.active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  box-shadow: none;
+}
+
+.paint-size-button, .paint-clear-button, .paint-save-button, .paint-glitch-button {
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.5);
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  min-width: 25px;
+  text-align: center;
+}
+
+.paint-size-button.active,
+.paint-size-button:active,
+.paint-clear-button:active,
+.paint-save-button:active,
+.paint-glitch-button:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  box-shadow: none;
+  padding: 3px 5px 1px 7px;
+}
+
+#paint-canvas {
+  border-top: 1px solid #808080;
+  flex-grow: 1;
+  background-color: white;
+  cursor: crosshair;
+  display: block;
+}
+
+/* --- New Paint Glitch Button Styles --- */
+.paint-glitch-button {
+  padding: 2px 8px; /* Reset padding if active state changed it */
+}
+.glitch-text {
+  position: relative;
+  font-weight: bold;
+  color: red;
+}
+.glitch-text::before,
+.glitch-text::after {
+  content: "错 误";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #C0C0C0;
+  overflow: hidden;
+  clip-path: inset(50% 0 50% 0);
+}
+.paint-glitch-button:active .glitch-text::before,
+.paint-glitch-button:active .glitch-text::after {
+    background: transparent;
+}
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -2px 0 blue;
+  animation: glitch-flicker 3s infinite linear alternate-reverse;
+}
+.glitch-text::after {
+  left: -2px;
+  text-shadow: 2px 0 green;
+  animation: glitch-flicker 2s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-flicker {
+  0% {
+    clip-path: inset(45% 0 50% 0);
+    opacity: 1; transform: translateX(0);
+  }
+  25% {
+    clip-path: inset(15% 0 70% 0);
+  }
+  50% {
+    clip-path: inset(80% 0 5% 0);
+    opacity: 0.7; transform: translateX(2px);
+  }
+  75% {
+    clip-path: inset(40% 0 30% 0);
+  }
+  100% {
+    clip-path: inset(70% 0 25% 0);
+    opacity: 1; transform: translateX(-2px);
+  }
+}
+
+
+/* --- Minesweeper Styles --- */
+#minesweeper .window-content {
+    padding: 0;
+    margin: 0;
+    background-color: #c0c0c0;
+    border: none;
+}
+
+.minesweeper-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px;
+  background-color: #C0C0C0;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  margin: 2px;
+  flex-shrink: 0;
+}
+
+.minesweeper-info {
+  background-color: black;
+  color: red;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 2px 5px;
+  border: 1px inset #808080;
+  min-width: 60px;
+  text-align: center;
+}
+
+.minesweeper-reset-button {
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  cursor: pointer;
+}
+
+.minesweeper-reset-button:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-right: 2px solid #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+}
+
+.minesweeper-grid-container {
+  flex-grow: 1;
+  padding: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px inset #808080;
+  margin: 0 2px 2px 2px;
+  overflow: auto;
+  background-color: #C0C0C0;
+}
+
+.minesweeper-grid {
+  display: grid;
+  border: 1px solid #808080;
+}
+
+.minesweeper-cell {
+  width: 20px;
+  height: 20px;
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #808080;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
+
+.minesweeper-cell.revealed {
+  background-color: #BDBDBD;
+  border: 1px solid #808080;
+  cursor: default;
+}
+
+.minesweeper-cell.mine { }
+.minesweeper-cell.exploded {
+  background-color: red;
+}
+
+.minesweeper-cell[data-number="1"] { color: blue; }
+.minesweeper-cell[data-number="2"] { color: green; }
+.minesweeper-cell[data-number="3"] { color: red; }
+.minesweeper-cell[data-number="4"] { color: #000080; }
+.minesweeper-cell[data-number="5"] { color: #800000; }
+.minesweeper-cell[data-number="6"] { color: #008080; }
+.minesweeper-cell[data-number="7"] { color: black; }
+.minesweeper-cell[data-number="8"] { color: gray; }
+
+.minesweeper-hint-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 5px 2px 5px;
+  background-color: #C0C0C0;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.minesweeper-commentary {
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  color: #000080;
+  text-align: center;
+  flex-grow: 1;
+  height: auto;
+  min-height: 24px;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+.minesweeper-cheat-button {
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.5);
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.minesweeper-cheat-button:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  box-shadow: none;
+}
+
+/* --- Icons Inside Windows --- */
+.window-icon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  padding: 10px;
+  margin: 5px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: top;
+}
+
+.window-icon:hover {
+  background-color: #000080;
+  color: white;
+}
+
+.window-icon:hover span {
+  background-color: #000080;
+  color: white;
+}
+
+.window-icon img {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 5px;
+}
+
+.window-icon span {
+  font-size: 0.7rem;
+  color: black;
+  max-height: 2.4em;
+  overflow: hidden;
+  line-height: 1.2em;
+}
+
+/* --- Image Viewer & NEUQ Browser Styles --- */
+#imageViewer .window-content {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    border: none;
+    margin: 0;
+}
+#neuqBrowser .window-content {
+    padding: 0;
+    overflow: hidden;
+    background-color: white;
+    border: none;
+    margin: 0;
+}
+
+#imageViewer img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#neuqBrowser img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+
+#neuqBrowser a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* --- Media Player (GemPlayer) Styles --- */
+#mediaPlayer .window-content {
+    padding: 0;
+    margin: 0;
+    background-color: #c0c0c0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.media-player-url-bar {
+  display: flex;
+  padding: 5px;
+  background-color: #C0C0C0;
+  border-bottom: 1px solid #808080;
+  flex-shrink: 0;
+}
+
+.media-player-input {
+  flex-grow: 1;
+  height: 22px;
+  border: 1px inset #808080;
+  background-color: white;
+  padding: 2px 5px;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.8rem;
+  margin-right: 5px;
+}
+
+.media-player-load-button {
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.5);
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  height: 22px;
+  cursor: pointer;
+}
+
+.media-player-load-button:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  box-shadow: none;
+  padding: 3px 7px 1px 9px;
+}
+
+.media-player-video-container {
+  flex-grow: 1;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin: 2px;
+  border: 2px inset #808080;
+}
+
+.media-player-status-message {
+  padding:20px;
+  text-align:center;
+  color:#ccc; /* Light gray for dark background */
+  font-size: 0.9rem;
+}
+
+
+#youtube-player-mediaPlayer {
+    width: 100%;
+    height: 100%;
+}
+
+#youtube-player-mediaPlayer iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.media-player-controls-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  flex-shrink: 0;
+  height: 40px;
+}
+
+.media-player-buttons-group {
+    display: flex;
+    align-items: center;
+}
+
+.media-player-control-button {
+  background-color: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  font-family: "Segoe UI Symbol", "Symbola", system-ui;
+  font-size: 0.9rem;
+  color: black;
+  width: 30px;
+  height: 26px;
+  margin: 0 2px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.media-player-control-button:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-right: 2px solid #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+  padding: 1px 0 0 1px;
+}
+
+.media-player-control-button:disabled {
+    color: #808080;
+    cursor: default;
+    opacity: 0.7;
+}
+
+.media-player-progress-bar-container-placeholder {
+    flex-grow: 1;
+    height: 12px;
+    border: 1px inset #808080;
+    background-color: #A0A0A0;
+    margin: 0 10px;
+    padding: 1px;
+}
+.media-player-progress-bar-placeholder {
+    width: 30%;
+    height: 100%;
+    background-color: #000080;
+    border-right: 1px solid #0000CL;
+}
+
+.media-player-volume-placeholder {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+.media-player-volume-placeholder span {
+    margin-right: 4px;
+}
+.media-player-volume-slider-placeholder {
+    width: 60px;
+    height: 8px;
+    background-color: #A0A0A0;
+    border: 1px inset #808080;
+}
+
+#myComputer .window-content,
+#imageViewer .window-content,
+#neuqBrowser .window-content,
+#qicq .window-content {
+    flex-direction: column;
+}
+#notepad .window-content {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background-color: #c0c0c0;
+}
+
+#paint .window-content,
+#minesweeper .window-content,
+#mediaPlayer .window-content,
+#imageViewer .window-content,
+#neuqBrowser .window-content {
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+/* --- QICQ App Styles --- */
+.qicq-content {
+  background-color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  font-family: 'SimSun', '宋体', serif;
+  font-size: 0.8rem;
+  flex-grow: 1;
+}
+.qicq-login-view {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.qicq-header {
+  text-align: center;
+  padding: 20px 0 15px 0;
+  background-color: #e0e0e0;
+  width: 100%;
+  border-bottom: 1px solid #808080;
+  flex-shrink: 0;
+}
+.qicq-header h2 { font-size: 1.2rem; font-weight: bold; }
+.qicq-form {
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  flex-grow: 1;
+}
+.qicq-input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.qicq-input-group label { width: 70px; flex-shrink: 0; }
+.qicq-input-group input { flex-grow: 1; border: 1px solid #808080; padding: 3px; box-shadow: inset 1px 1px 1px #808080; }
+.qicq-status-selector { margin-bottom: 15px; display: flex; align-items: center; }
+.qicq-status-selector label { width: 70px; flex-shrink: 0; }
+.qicq-status-selector select { flex-grow: 1; }
+.qicq-login-btn {
+  width: 100%;
+  padding: 5px;
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  cursor: pointer;
+}
+.qicq-login-btn:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+}
+.qicq-status-message {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: red;
+  height: 2.5em; /* Increased height for longer messages */
+  line-height: 1.2em;
+}
+.qicq-footer {
+  margin-top: auto;
+  padding: 10px;
+  width: 100%;
+  text-align: center;
+  border-top: 1px solid #808080;
+  background-color: #e0e0e0;
+  flex-shrink: 0;
+}
+.qicq-footer a { color: #0000EE; cursor: pointer; }
+
+/* QICQ Main/Contact List Styles */
+.qicq-main-header {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #e0e0e0;
+    border-bottom: 1px solid #808080;
+}
+.qicq-main-header img { width: 40px; height: 40px; margin-right: 8px; }
+.qicq-user-info strong { font-size: 0.9rem; }
+.qicq-user-info span { font-size: 0.75rem; color: #555; }
+.qicq-contact-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: white;
+}
+.qicq-contact-category {
+    padding: 3px 8px;
+    background-color: #f0f0f0;
+    font-weight: bold;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+.qicq-contact-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+}
+.qicq-contact-item:hover { background-color: #d4e8ff; }
+.qicq-contact-item img { width: 24px; height: 24px; margin-right: 8px; }
+.qicq-main-footer {
+    padding: 5px;
+    background-color: #f0f0f0;
+    border-top: 1px solid #808080;
+    text-align: right;
+}
+.qicq-main-footer button {
+    background: none; border: none; font-size: 0.75rem; cursor: pointer;
+}
+
+/* QICQ Chat Window Styles */
+#qicqChatNEUQ .window-content {
+    background-color: #f0f0f0;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+.qicq-chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: white;
+    border-bottom: 1px solid #808080;
+    font-size: 12px;
+}
+.qicq-chat-message { margin-bottom: 8px; }
+.qicq-chat-message strong { font-weight: normal; }
+.qicq-chat-message div { margin-left: 1em; }
+.qicq-chat-message.user-message strong { color: #0000EE !important; font-family: "SimSun" !important; }
+.qicq-chat-message.user-message div { color: #0000EE !important; font-family: "SimSun" !important; }
+.qicq-chat-message.system-error { color: red; font-style: italic; margin-top: 10px; }
+.qicq-chat-toolbar {
+    padding: 3px;
+    border-bottom: 1px solid #808080;
+    display: flex;
+    gap: 4px;
+}
+.qicq-chat-toolbar button {
+    font-family: "Times New Roman";
+    font-weight: bold;
+    width: 24px; height: 24px;
+    background-color: #C0C0C0;
+    border-top: 1px solid #FFFFFF;
+    border-left: 1px solid #FFFFFF;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    cursor: pointer;
+}
+.qicq-chat-toolbar button:active {
+    border-top: 1px solid #000000;
+    border-left: 1px solid #000000;
+}
+.qicq-chat-input-area {
+    display: flex;
+    flex-direction: column;
+}
+.qicq-chat-input-area textarea {
+    height: 80px;
+    border: none;
+    padding: 5px;
+    resize: none;
+    outline: none;
+    background-color: white;
+    font-family: 'SimSun', '宋体', serif;
+}
+.qicq-chat-actions {
+    padding: 5px;
+    text-align: right;
+    background-color: #C0C0C0;
+}
+.qicq-chat-send-btn, .qicq-chat-close-btn {
+  padding: 3px 12px;
+  background-color: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  cursor: pointer;
+}
+
+/* --- New QICQ Password Recovery Styles --- */
+.recovery-content {
+    background-color: #C0C0C0 !important;
+    padding: 15px !important;
+    font-family: 'SimSun', '宋体', serif;
+    font-size: 0.8rem;
+}
+.recovery-content h3 { font-weight: bold; margin-bottom: 10px; }
+.recovery-question { margin-bottom: 15px; }
+.recovery-question p { margin-bottom: 8px; }
+.recovery-question label { display: inline-block; }
+.recovery-question input[type="text"] { width: 100%; border: 1px inset #808080; padding: 3px; }
+.recovery-options { display: flex; gap: 20px; align-items: center; }
+.recovery-options > div { display: flex; align-items: center; gap: 5px; }
+.recovery-options label { margin-right: 0; }
+.recovery-actions { text-align: center; margin-top: 10px; }
+#recovery-submit-btn {
+    padding: 3px 12px;
+    background-color: #C0C0C0;
+    border-top: 1px solid #FFFFFF;
+    border-left: 1px solid #FFFFFF;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    cursor: pointer;
+}
+#recovery-status-message { color: red; height: 1.2em; margin-top: 5px; }
+#password-reveal {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px dotted #808080;
+}
+#password-reveal .password-text { font-weight: bold; color: #000080; font-family: 'Courier New', monospace; font-size: 1.1em; text-align: center; margin-top: 5px;}
+
+/* --- System Dialog Styles --- */
+.system-dialog-content {
+    background-color: #C0C0C0 !important;
+    padding: 15px !important;
+    font-family: 'SimSun', '宋体', serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* --- Timeline Control Styles --- */
+.timeline-content {
+    background-color: #C0C0C0 !important;
+    padding: 15px !important;
+    font-family: 'Courier New', monospace;
+}
+.timeline-slider-container { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+#timeline-display { text-align: center; margin-top: 15px; font-weight: bold; font-size: 1rem; color: #000080; }
+
+input[type=range]#timeline-slider {
+    -webkit-appearance: none;
+    flex-grow: 1;
+    background: transparent;
+}
+input[type=range]#timeline-slider:focus { outline: none; }
+input[type=range]#timeline-slider::-webkit-slider-runnable-track {
+    width: 100%; height: 8px; cursor: pointer;
+    background: #808080; border: 1px solid #000;
+}
+input[type=range]#timeline-slider::-webkit-slider-thumb {
+    border-top: 2px solid #FFFFFF; border-left: 2px solid #FFFFFF;
+    border-right: 2px solid #000000; border-bottom: 2px solid #000000;
+    height: 20px; width: 10px; background: #C0C0C0;
+    cursor: pointer; -webkit-appearance: none; margin-top: -7px;
+}
+input[type=range]#timeline-slider::-moz-range-track {
+    width: 100%; height: 8px; cursor: pointer;
+    background: #808080; border: 1px solid #000;
+}
+input[type=range]#timeline-slider::-moz-range-thumb {
+    border-top: 2px solid #FFFFFF; border-left: 2px solid #FFFFFF;
+    border-right: 2px solid #000000; border-bottom: 2px solid #000000;
+    height: 20px; width: 10px; background: #C0C0C0;
+    cursor: pointer;
+}
+
+/* --- Temporal Singularity (Timeline) Override Styles --- */
+#timelineControl .timeline-content {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%) !important;
+    color: #00ff88;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #00ff88 !important;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+#timelineControl #timeline-display {
+    color: #ffaa00;
+    text-shadow: 0 0 10px #ffaa00;
+}
+
+#timelineControl input[type=range]#timeline-slider::-webkit-slider-runnable-track {
+    background: #00ff88;
+    border: 1px solid #00ff88;
+    height: 4px;
+}
+#timelineControl input[type=range]#timeline-slider::-webkit-slider-thumb {
+    border: 2px solid #00ff88;
+    height: 20px;
+    width: 10px;
+    background: #0a0a0a;
+    margin-top: -9px;
+}
+#timelineControl input[type=range]#timeline-slider::-moz-range-track {
+    background: #00ff88;
+    border: 1px solid #00ff88;
+    height: 4px;
+}
+#timelineControl input[type=range]#timeline-slider::-moz-range-thumb {
+    border: 2px solid #00ff88;
+    height: 20px;
+    width: 10px;
+    background: #0a0a0a;
+}
+
+/* --- Calendar Window Styles --- */
+.calendar-content {
+    background-color: #C0C0C0 !important;
+    padding: 10px !important;
+    font-family: 'SimSun', '宋体', sans-serif;
+    font-size: 0.8rem;
+}
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+.calendar-header span {
+    font-weight: bold;
+    font-size: 1rem;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #808080;
+    border: 1px solid #808080;
+}
+.calendar-day-name, .calendar-day {
+    background-color: #C0C0C0;
+    text-align: center;
+    padding: 4px;
+}
+.calendar-day-name {
+    font-weight: bold;
+}
+.calendar-day.other-month {
+    color: #808080;
+}
+.calendar-day.today {
+    border: 2px inset #FFFFFF;
+    background-color: #e0e0e0;
+}
+
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .desktop {
+        /* Keep vertical layout on mobile, allow horizontal scroll for overflow */
+        height: calc(100vh - 36px);
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 10px;
+    }
+    .icon {
+        margin: 10px;
+        width: 80px;
+    }
+
+    .icon img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .window {
+        left: 2.5vw !important;
+        top: 20px !important;
+        width: 95vw !important;
+        max-width: 95vw !important;
+        height: auto !important;
+        max-height: calc(100vh - 80px);
+    }
+
+    .window.resizable {
+        resize: none; /* Disable resizing on mobile */
+    }
+
+    .start-menu {
+        width: 100%;
+        left: 0;
+        padding: 10px 0;
+    }
+
+    .start-menu-item {
+        padding: 12px 20px 12px 30px;
+        font-size: 1rem;
+    }
+
+    #synthesis-loader .title {
+        font-size: 1.8rem;
+    }
+    #synthesis-loader .subtitle {
+        font-size: 0.8rem;
+    }
+    #synthesis-loader .switch-btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+    }
+    #synthesis-loader .content {
+        padding: 20px;
+        font-size: 0.9em;
+    }
+}
