@@ -100,8 +100,8 @@
         <span>媒体播放器</span>
       </div>
       <div class="icon" data-app="neuqBrowser">
-        <img src="static/neuq_icon.png" alt="东北大学秦皇岛分校" style="width: 48px; height: 48px" />
-        <span>东北大学秦皇岛分校</span>
+        <img src="static/neuq_icon.png" alt="东北大学" style="width: 48px; height: 48px" />
+        <span>东北大学(秦皇岛)</span>
       </div>
       <div class="icon" data-app="timelineControl">
         <img src="icons/png/channels-0.png" alt="时空奇点" />
@@ -115,6 +115,7 @@
           <span class="window-title">我的电脑</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -126,17 +127,22 @@
           <div id="c-drive-content" style="display: none">
             <div id="secret-image-icon" class="window-icon">
               <img src="icons/png/paint_file-0.png" alt="秘密文件" />
-              <span>不要给任何<br />人看.jpg</span>
+              <span>不要给任何人看.jpg</span>
+            </div>
+            <div id="memo-icon" class="window-icon">
+              <img src="icons/png/notepad_file-1.png" alt="备忘" />
+              <span>备忘.txt</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="window resizable" id="notepad">
+      <div class="window resizable" id="notepad" style="width: 450px; height: 350px;">
         <div class="window-titlebar">
           <span class="window-title">记事本</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -145,14 +151,7 @@
             <button id="notepad-import-button" class="notepad-button">导入</button>
             <button id="notepad-save-button" class="notepad-button">保存</button>
           </div>
-          <textarea class="notepad-textarea" style="
-                width: 100%;
-                height: 100%;
-                border: none;
-                outline: none;
-                resize: none;
-                background-color: white;
-              "></textarea>
+          <textarea class="notepad-textarea"></textarea>
         </div>
       </div>
 
@@ -161,6 +160,7 @@
           <span class="window-title">画图</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -201,6 +201,7 @@
           <span class="window-title">QICQ</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -208,6 +209,7 @@
           <div class="qicq-login-view">
             <div class="qicq-header">
               <h2>QICQ</h2>
+              <p style="font-size: 0.7rem; color: #555; margin-top: 4px;">每一次沟通，都是一次新的探索</p>
             </div>
             <div class="qicq-form">
               <div class="qicq-input-group">
@@ -241,6 +243,7 @@
                 <span>[在线]</span>
               </div>
             </div>
+            <p class="qicq-auth-message" id="qicq-auth-message" style="display: none;"></p>
             <div class="qicq-contact-list">
               <div class="qicq-contact-category">我的群组</div>
               <div class="qicq-contact-item" data-app="qicqChatNEUQ">
@@ -249,7 +252,7 @@
                   <p>NEUQ音游同好会（仮）</p>
                 </div>
               </div>
-              <a href="https://qm.qq.com/q/ymLZwoFdq8" target="_blank" class="qicq-contact-item">
+              <a href="https://qm.qq.com/q/ymLZwoFdq8" target="_blank" class="qicq-contact-item" id="project-synthesis-link">
                 <img src="icons/png/msg_warning-0.png" alt="group icon">
                 <div>
                   <p>Project Synthesis.</p>
@@ -268,6 +271,7 @@
           <span class="window-title">NEUQ音游同好会（仮）(227)</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -290,11 +294,12 @@
         </div>
       </div>
 
-      <div class="window resizable" id="minesweeper" style="width: 400px; height: 450px">
+      <div class="window resizable" id="minesweeper" style="width: 255px; height: 345px;">
         <div class="window-titlebar">
           <span class="window-title">扫雷</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -326,6 +331,7 @@
           <span class="window-title" id="image-viewer-title">图片查看器</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -346,6 +352,7 @@
           <span class="window-title">媒体播放器</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -376,11 +383,12 @@
         </div>
       </div>
 
-      <div class="window" id="neuqBrowser" style="width: 800px; height: 600px;">
+      <div class="window resizable" id="neuqBrowser" style="width: 800px; height: 600px;">
         <div class="window-titlebar">
           <span class="window-title">东北大学秦皇岛分校</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
             <div class="window-close window-control-button">✕</div>
           </div>
         </div>
@@ -469,7 +477,7 @@
         </div>
       </div>
 
-      <div class="window" id="timelineControl" style="width: 350px; height: 180px;">
+      <div class="window" id="timelineControl" style="width: 350px; height: 220px;">
         <div class="window-titlebar">
           <span class="window-title">时空奇点</span>
           <div class="window-controls">
@@ -477,13 +485,17 @@
           </div>
         </div>
         <div class="window-content timeline-content">
-          <label for="timeline-slider">奇点漂移:</label>
-          <div class="timeline-slider-container">
-            <span>过 去</span>
-            <input type="range" id="timeline-slider" min="0" max="100">
-            <span>现在</span>
+          <div class="timeline-slider-group">
+            <label for="timeline-slider">奇点漂移:</label>
+            <div class="timeline-slider-container">
+              <span>过 去</span>
+              <input type="range" id="timeline-slider" min="-100" max="100">
+              <span>未 来</span>
+            </div>
           </div>
-          <p id="timeline-display"></p>
+          <div class="timeline-date-picker">
+            <input type="date" id="timeline-date-input">
+          </div>
         </div>
       </div>
       

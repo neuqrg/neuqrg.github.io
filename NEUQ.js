@@ -28,6 +28,7 @@ let highestZIndex = 20; // 用于管理窗口层级的 z-index
 const openApps = new Map(); // 存储已打开的应用及其对应的窗口和任务栏按钮
 let timelineOffsetMs = 0; // 时间线偏移量 (毫秒)
 const timelineStartDate = new Date('2022-08-23T00:00:00'); // 时间线起始日期
+let nextWindowOffset = { top: 30, left: 50 }; // For cascading window positions
 
 // 存储 ResizeObserver 实例，以便之后可以断开连接
 const paintResizeObserverMap = new Map();
@@ -88,8 +89,10 @@ function bringToFront(windowElement) {
 /**
  * 打开一个应用程序窗口
  * @param {string} appName - 要打开的应用名称
+ * @param {object} [options={}] - 打开应用的选项
+ * @param {string} [options.content] - (记事本) 要设置的内容
  */
-async function openApp(appName) {
+async function openApp(appName, options = {}) {
     if (!appName) return;
     
     // 处理特殊命令
@@ -123,8 +126,15 @@ async function openApp(appName) {
         if (appName === 'calendarWindow') {
             initCalendar(windowElement);
         }
+        // Handle notepad content update if already open
+        if (appName === 'notepad' && options.content) {
+            updateNotepadContent(options.content);
+        }
         return;
     }
+    
+    // For positioning a new window relative to the previously active one
+    const lastActiveWindowForPositioning = activeWindow;
 
     // 显示并激活窗口
     windowElement.style.display = 'flex';
@@ -188,9 +198,44 @@ async function openApp(appName) {
     openApps.set(appName, { windowEl: windowElement, taskbarButton: taskbarButton });
     taskbarButton.classList.add('active');
 
+    // Set position for new windows
+    if (window.innerWidth <= 768) { // Mobile placement logic
+        let top = 20; // Default top position
+        let left = 20; // Default left position
+
+        if (lastActiveWindowForPositioning && lastActiveWindowForPositioning.style.display !== 'none') {
+            const lastRect = lastActiveWindowForPositioning.getBoundingClientRect();
+            const potentialTop = lastRect.top + 30; // Position below the last active window
+            
+            // Check if there's enough space below
+            if (potentialTop + windowElement.offsetHeight < window.innerHeight - 36) { // 36 for taskbar
+                top = potentialTop;
+            } else {
+                // No space below, try placing above
+                const potentialTopAbove = lastRect.top - 30;
+                if (potentialTopAbove > 0) {
+                    top = potentialTopAbove;
+                }
+                // Otherwise, it will default to the initial 'top' value.
+            }
+            // Cascade horizontally to avoid perfect overlap
+            left = (lastRect.left + 20) % Math.max(1, (window.innerWidth - windowElement.offsetWidth - 20));
+        }
+        windowElement.style.top = `${top}px`;
+        windowElement.style.left = `${left}px`;
+    } else { // Desktop cascading logic
+        windowElement.style.top = `${nextWindowOffset.top}px`;
+        windowElement.style.left = `${nextWindowOffset.left}px`;
+        nextWindowOffset.top += 25;
+        nextWindowOffset.left += 25;
+        if (nextWindowOffset.top > window.innerHeight / 2 || nextWindowOffset.left > window.innerWidth / 2) {
+            nextWindowOffset = { top: 30, left: 50 };
+        }
+    }
+
     // 根据应用名称初始化特定功能
     if (appName === 'notepad') {
-        initNotepad(windowElement);
+        initNotepad(windowElement, options.content);
     }
     else if (appName === 'paint') {
         initSimplePaintApp(windowElement);
@@ -317,6 +362,52 @@ function minimizeApp(appName) {
     }
 }
 
+/**
+ * 最大化/还原一个应用程序窗口
+ * @param {string} appName - 要操作的应用名称
+ */
+function toggleMaximize(appName) {
+    const appData = openApps.get(appName);
+    if (!appData) return;
+    const { windowEl } = appData;
+    const maximizeButton = windowEl.querySelector('.window-maximize');
+
+    if (windowEl.classList.contains('maximized')) {
+        // Restore
+        const oldPosition = JSON.parse(windowEl.dataset.oldPosition || '{}');
+        windowEl.style.top = oldPosition.top;
+        windowEl.style.left = oldPosition.left;
+        windowEl.style.width = oldPosition.width;
+        windowEl.style.height = oldPosition.height;
+        windowEl.classList.remove('maximized');
+        if (maximizeButton) maximizeButton.textContent = '□';
+        delete windowEl.dataset.oldPosition;
+    } else {
+        // Maximize
+        const computedStyle = getComputedStyle(windowEl);
+        const oldPosition = {
+            top: windowEl.style.top || computedStyle.top,
+            left: windowEl.style.left || computedStyle.left,
+            width: windowEl.style.width || computedStyle.width,
+            height: windowEl.style.height || computedStyle.height,
+        };
+        windowEl.dataset.oldPosition = JSON.stringify(oldPosition);
+        
+        const taskbar = document.getElementById('taskbar');
+        const taskbarHeight = taskbar ? taskbar.offsetHeight : 36;
+
+        windowEl.style.top = '0px';
+        windowEl.style.left = '0px';
+        windowEl.style.width = '100vw';
+        windowEl.style.height = `calc(100vh - ${taskbarHeight}px)`;
+
+        windowEl.classList.add('maximized');
+        if (maximizeButton) maximizeButton.textContent = '❐';
+        bringToFront(windowEl);
+    }
+}
+
+
 // --- QICQ 功能 ---
 function initQicq(windowElement) {
     const loginBtn = windowElement.querySelector('.qicq-login-btn');
@@ -327,8 +418,10 @@ function initQicq(windowElement) {
     const neuqChatItem = windowElement.querySelector('.qicq-contact-item[data-app="qicqChatNEUQ"]');
     const forgotPasswordLink = windowElement.querySelector('#qicq-forgot-password-link');
     const applyLink = windowElement.querySelector('#qicq-apply-link');
+    const projectSynthesisLink = windowElement.querySelector('#project-synthesis-link');
+    const authMessage = windowElement.querySelector('#qicq-auth-message');
     
-    if (!loginBtn || !pwInput || !statusMsg || !loginView || !mainView || !neuqChatItem || !forgotPasswordLink || !applyLink) return;
+    if (!loginBtn || !pwInput || !statusMsg || !loginView || !mainView || !neuqChatItem || !forgotPasswordLink || !applyLink || !projectSynthesisLink || !authMessage) return;
 
     let qicqLoginAttempts = 0;
 
@@ -374,6 +467,17 @@ function initQicq(windowElement) {
 
     neuqChatItem.addEventListener('click', () => {
         openApp('qicqChatNEUQ');
+    });
+
+    projectSynthesisLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        authMessage.innerHTML = '需要认证密钥 <code class="authkey">authkey</code>...';
+        authMessage.style.display = 'block';
+        
+        setTimeout(() => {
+            authMessage.style.display = 'none';
+            window.open(projectSynthesisLink.href, '_blank');
+        }, 2000);
     });
 }
 
@@ -455,7 +559,7 @@ function initQicqChat(windowElement) {
                 // 添加回复
                 const replyUser = 'Pubbysuki';
                 const replyStyle = 'color: #333; font-style: italic;';
-                const replyText = '等等，你们刚才说的γ5α2β1α3(3/4)是啥意思啊？';
+                const replyText = '等等，你们说的γ5α2β1α3(3/4）是啥意思啊？';
                 
                 const replyNow = new Date(Date.now() + timelineOffsetMs);
                 // 确保分钟不会超过59
@@ -497,19 +601,56 @@ function initQicqChat(windowElement) {
     });
 }
 
+/**
+ * 更新依赖于时间线的所有组件
+ */
+function updateTimelineDependents() {
+    updateNotepadContent();
+    // Add other dependent updates here in the future
+}
+
+/**
+ * 根据当前虚拟日期更新记事本内容
+ * @param {string|null} [overrideContent=null] - 如果提供，则使用此内容覆盖日期逻辑
+ */
+function updateNotepadContent(overrideContent = null) {
+    const notepadWindow = document.getElementById('notepad');
+    if (!notepadWindow || !openApps.has('notepad')) return; // Check if open
+
+    const textarea = notepadWindow.querySelector('.notepad-textarea');
+    if (!textarea) return;
+
+    if (overrideContent !== null) {
+        textarea.value = overrideContent;
+        return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const currentDate = new Date(Date.now() + timelineOffsetMs);
+    currentDate.setHours(0, 0, 0, 0);
+
+    if (currentDate.getTime() > today.getTime()) {
+        textarea.value = "那些破碎的、矛盾的、无法调和的过往，最都终在SYNTHESIS中完成了■■。\n\n不是简单的拼凑，而是将那些尖锐的痛楚与朦胧的欢愉，如魔药一般置于时光的反应釜中。\n我将所得的结晶一一收藏，不是作为标本，而是作为种子。\n当你再次迷失于记忆的迷雾时，当你因遗忘而感到恐慌时，请打开它。\n\n你会看见：所有分离的轨迹，在更高维度中交汇；所有矛盾的噪音，在第四、第五、第九交换层中融为和弦。\n就像光线穿过棱镜，白光被分解为虹彩，你的存在也于此发生衍射，呈现所有可能的频谱。\n每一种颜色都有其独特的波长，每一段经历也自有其不可替代的意义。\n\n过去的你、未来的我，以及一切悬而未决的疑问，都在此处达成了暂时的和解。\n请不要将这视为告别，这是未来的我，在此时此刻，为你重新铸就的黎明。\n\nα3β4α2δ1 (1/4)";
+    } else {
+        textarea.value = "";
+    }
+}
+
 
 /**
  * 处理记事本功能
  * @param {HTMLDivElement} windowElement - 记事本窗口元素
+ * @param {string} [initialContent] - 初始内容
  */
-function initNotepad(windowElement) {
+function initNotepad(windowElement, initialContent) {
     const textarea = windowElement.querySelector('.notepad-textarea');
     const importButton = windowElement.querySelector('#notepad-import-button');
     const saveButton = windowElement.querySelector('#notepad-save-button');
     if (!textarea || !importButton || !saveButton) return;
 
-    // Set default text
-    textarea.value = "α3β4α2δ1 (1/4)";
+    updateNotepadContent(initialContent);
 
     // 保存功能
     saveButton.addEventListener('click', () => {
@@ -582,6 +723,7 @@ windows.forEach(windowElement => {
     const titleBar = windowElement.querySelector('.window-titlebar');
     const closeButton = windowElement.querySelector('.window-close');
     const minimizeButton = windowElement.querySelector('.window-minimize');
+    const maximizeButton = windowElement.querySelector('.window-maximize');
 
     // 点击窗口时将其带到最前
     windowElement.addEventListener('mousedown', () => bringToFront(windowElement), true);
@@ -593,6 +735,10 @@ windows.forEach(windowElement => {
     // 最小化按钮
     if (minimizeButton) {
         minimizeButton.addEventListener('click', (e) => { e.stopPropagation(); minimizeApp(windowElement.id); });
+    }
+    // 最大化按钮
+    if (maximizeButton) {
+        maximizeButton.addEventListener('click', (e) => { e.stopPropagation(); toggleMaximize(windowElement.id); });
     }
 
     // 窗口拖动逻辑 (支持鼠标和触摸)
@@ -608,6 +754,7 @@ windows.forEach(windowElement => {
         };
         
         const startDragging = (e) => {
+             if (windowElement.classList.contains('maximized')) return;
              if (!(e.target === titleBar || titleBar.contains(e.target)) || e.target.closest('.window-control-button')) {
                  isDragging = false; return;
             }
@@ -643,7 +790,8 @@ windows.forEach(windowElement => {
             x = Math.max(minX, Math.min(x, maxX));
             y = Math.max(minY, Math.min(y, maxY));
             
-            windowElement.style.left = `${x}px`; windowElement.style.top = `${y}px`;
+            windowElement.style.left = `${x}px`;
+            windowElement.style.top = `${y}px`;
         };
         const stopDragging = () => {
             if (!isDragging) return;
@@ -653,16 +801,6 @@ windows.forEach(windowElement => {
         };
         titleBar.addEventListener('mousedown', startDragging);
         titleBar.addEventListener('touchstart', startDragging, { passive: true });
-    }
-
-    // 为新打开的窗口设置随机初始位置 (仅在非移动设备上)
-    if (!window.matchMedia("(max-width: 768px)").matches) {
-        if (!openApps.has(windowElement.id)) {
-            const randomTop = Math.random() * (window.innerHeight / 4) + 20;
-            const randomLeft = Math.random() * (window.innerWidth / 3) + 20;
-            windowElement.style.top = `${randomTop}px`;
-            windowElement.style.left = `${randomLeft}px`;
-        }
     }
 });
 
@@ -865,7 +1003,7 @@ function initMinesweeperGame(windowElement) {
         minesweeperGameOver = false; minesweeperFirstClick = true; minesweeperMineCount = 10;
         minesweeperGridSize = { rows: 9, cols: 9 };
         timerElement.textContent = `⏱️ 0`; flagCountElement.textContent = `🚩 ${minesweeperMineCount}`;
-        resetButton.textContent = '🙂'; commentaryElement.textContent = "开始游戏吧！点击一个方块。";
+        resetButton.textContent = '🙂'; commentaryElement.textContent = "雷区已部署，请谨慎操作";
         createGrid();
     }
     function createGrid() {
@@ -977,7 +1115,7 @@ function initMinesweeperGame(windowElement) {
             minesweeperGameOver = true;
             if (minesweeperTimerInterval) clearInterval(minesweeperTimerInterval);
             minesweeperTimerInterval = null; resetButton.textContent = '😎';
-            commentaryElement.textContent = '恭喜，你赢了！提示：(1&2&3)->4';
+            commentaryElement.textContent = '你赢了！Hint：(1&2&3)->4';
             if (revealedCount === totalNonMineCells) {
                  grid.forEach(row => row.forEach(cell => {
                      if (cell.isMine && !cell.isFlagged) { cell.isFlagged = true; cell.element.textContent = '🚩'; minesweeperFlagsPlaced++; }
@@ -1032,7 +1170,8 @@ function initMyComputer(windowElement) {
     const cDriveIcon = windowElement.querySelector('#c-drive-icon');
     const cDriveContent = windowElement.querySelector('#c-drive-content');
     const secretImageIcon = windowElement.querySelector('#secret-image-icon');
-    if (!cDriveIcon || !cDriveContent || !secretImageIcon) return;
+    const memoIcon = windowElement.querySelector('#memo-icon');
+    if (!cDriveIcon || !cDriveContent || !secretImageIcon || !memoIcon) return;
     cDriveIcon.addEventListener('click', () => {
         cDriveIcon.style.display = 'none'; cDriveContent.style.display = 'block';
     });
@@ -1041,10 +1180,14 @@ function initMyComputer(windowElement) {
         const imageViewerImg = document.getElementById('image-viewer-img');
         const imageViewerTitle = document.getElementById('image-viewer-title');
         if (!imageViewerWindow || !imageViewerImg || !imageViewerTitle) { alert("图片查看器已损坏！"); return; }
-        imageViewerImg.src = 'static/Snipaste_2025-09-19_00-01-08.png';
+        imageViewerImg.src = 'static/(4-4).png';
         imageViewerImg.alt = '不要给任何人看.jpg';
         imageViewerTitle.textContent = '不要给任何人看.jpg - 图片查看器';
         openApp('imageViewer');
+    });
+    memoIcon.addEventListener('click', () => {
+        const hint = `「如果有一天你不再记得自己爱过谁、伤害过谁、为何流泪——别怕，*未来*的我在记事本里为我们保管了所有答案。」`;
+        openApp('notepad', { content: hint });
     });
     cDriveIcon.style.display = 'inline-flex'; cDriveContent.style.display = 'none';
 }
@@ -1168,26 +1311,83 @@ function initTrayIcons() {
 
 function initTimelineControl(windowElement) {
     const slider = windowElement.querySelector('#timeline-slider');
-    const display = windowElement.querySelector('#timeline-display');
-    if (!slider || !display) return;
+    const dateInput = windowElement.querySelector('#timeline-date-input');
+    if (!slider || !dateInput) return;
     
     const now = new Date();
-    const minOffset = timelineStartDate.getTime() - now.getTime();
-    const maxOffset = 0;
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    slider.min = minOffset;
-    slider.max = maxOffset;
+    const pastOffset = timelineStartDate.getTime() - today.getTime();
+    const futureOffset = -pastOffset; // The same duration into the future
+
+    slider.min = pastOffset;
+    slider.max = futureOffset;
     slider.value = timelineOffsetMs;
+
+    const toInputDateString = (date) => {
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const d = date.getDate().toString().padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
 
     function updateDisplay() {
         const currentDate = new Date(Date.now() + timelineOffsetMs);
-        display.textContent = currentDate.toLocaleDateString('zh-CN');
+        if (dateInput.value !== toInputDateString(currentDate)) {
+            dateInput.value = toInputDateString(currentDate);
+        }
+
+        const totalRange = futureOffset - pastOffset;
+        const ratio = totalRange === 0 ? 0.5 : (timelineOffsetMs - pastOffset) / totalRange;
+        
+        // Past: Dark Teal (#006060) -> Present: Default Teal (#008080) -> Future: Deep Blue (#2060A0)
+        const pastColor = { r: 0, g: 96, b: 96 };
+        const presentColor = { r: 0, g: 128, b: 128 };
+        const futureColor = { r: 32, g: 96, b: 160 };
+        let r, g, b;
+
+        if (ratio < 0.5) {
+            const localRatio = ratio * 2; // scale to 0-1
+            r = pastColor.r + (presentColor.r - pastColor.r) * localRatio;
+            g = pastColor.g + (presentColor.g - pastColor.g) * localRatio;
+            b = pastColor.b + (presentColor.b - pastColor.b) * localRatio;
+        } else {
+            const localRatio = (ratio - 0.5) * 2; // scale to 0-1
+            r = presentColor.r + (futureColor.r - presentColor.r) * localRatio;
+            g = presentColor.g + (futureColor.g - presentColor.g) * localRatio;
+            b = presentColor.b + (futureColor.b - presentColor.b) * localRatio;
+        }
+        
+        if (desktop) {
+            desktop.style.backgroundColor = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+        }
     }
     
     slider.addEventListener('input', () => {
         timelineOffsetMs = parseInt(slider.value, 10);
         updateClock();
         updateDisplay();
+        updateTimelineDependents();
+    });
+
+    dateInput.addEventListener('change', () => {
+        const selectedDate = new Date(dateInput.value);
+        if (!isNaN(selectedDate.getTime())) {
+            const timezoneOffset = selectedDate.getTimezoneOffset() * 60000;
+            const adjustedSelectedDate = new Date(selectedDate.getTime() + timezoneOffset);
+            
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            const newOffset = adjustedSelectedDate.getTime() - today.getTime();
+            
+            timelineOffsetMs = Math.max(pastOffset, Math.min(newOffset, futureOffset));
+            slider.value = timelineOffsetMs;
+            
+            updateClock();
+            updateDisplay();
+            updateTimelineDependents();
+        }
     });
     
     updateDisplay();
@@ -1282,22 +1482,65 @@ function initBootSequence() {
             synthesisLoader.style.display = 'none';
         }, 700);
 
-        // 2. 显示 Win98 加载器并开始动画
+        // 2. 显示 Win98 加载器并开始实时加载
         win98Loader.style.display = 'flex';
+        const progressBar = win98Loader.querySelector('.win98-progress-bar');
         
-        // 3. 模拟加载后，隐藏 Win98 加载器并显示桌面
-        setTimeout(() => {
-            win98Loader.style.opacity = '0';
+        // --- 实时加载逻辑 ---
+        const imagesToLoad = Array.from(document.images);
+        const totalResources = imagesToLoad.length;
+        let loadedResources = 0;
+        let loadingFinished = false;
+
+        const finishLoading = () => {
+            if (loadingFinished) return;
+            loadingFinished = true;
+
+            progressBar.style.width = '100%';
+            const randomDelay = Math.random() * 1500 + 500; // 0.5s to 2s
+            
             setTimeout(() => {
-                win98Loader.style.display = 'none';
-                desktopEnvironment.style.display = 'block'; // 显示桌面环境
-                console.log("复古操作系统模拟器已初始化 (JS)");
-                // 启动时钟
-                setInterval(updateClock, 1000);
-                updateClock(); // 立即调用一次以显示时间
-                initTrayIcons(); // 初始化托盘图标点击事件
-            }, 700);
-        }, 2800); // 匹配 CSS 动画时长 + 一点延迟
+                win98Loader.style.opacity = '0';
+                setTimeout(() => {
+                    win98Loader.style.display = 'none';
+                    desktopEnvironment.style.display = 'block';
+                    console.log("复古操作系统模拟器已初始化 (JS)");
+                    setInterval(updateClock, 1000);
+                    updateClock();
+                    initTrayIcons();
+                }, 700);
+            }, randomDelay);
+        };
+
+        const updateProgressBar = () => {
+            if (totalResources > 0) {
+                const percentage = Math.min(100, (loadedResources / totalResources) * 100);
+                progressBar.style.width = `${percentage}%`;
+            }
+            if (loadedResources >= totalResources) {
+                finishLoading();
+            }
+        };
+
+        if (totalResources === 0) {
+            finishLoading();
+        } else {
+            imagesToLoad.forEach(img => {
+                if (img.complete) {
+                    loadedResources++;
+                } else {
+                    img.onload = () => {
+                        loadedResources++;
+                        updateProgressBar();
+                    };
+                    img.onerror = () => {
+                        loadedResources++; // 将错误也计为“已加载”，以防启动过程被阻止
+                        updateProgressBar();
+                    };
+                }
+            });
+            updateProgressBar(); // 为已缓存的图像进行初始更新
+        }
     });
 }
 
