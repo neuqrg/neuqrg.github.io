@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SYNTHESIS.</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@300;400;500&family=Orbitron:wght@400;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700&display=swap"
     rel="stylesheet" />
   <script type="importmap">
       {
@@ -120,9 +120,15 @@
           </div>
         </div>
         <div class="window-content" style="background-color: white">
-          <div id="c-drive-icon" class="window-icon">
-            <img src="icons/png/cd_drive-0.png" alt="C 盘" />
-            <span>C:</span>
+          <div class="drive-container">
+            <div id="c-drive-icon" class="window-icon">
+              <img src="icons/png/cd_drive-0.png" alt="C 盘" />
+              <span>C:</span>
+            </div>
+            <div id="d-drive-icon" class="window-icon">
+              <img src="icons/png/cd_drive-0.png" alt="D 盘" />
+              <span>D:</span>
+            </div>
           </div>
           <div id="c-drive-content" style="display: none">
             <div id="secret-image-icon" class="window-icon">
@@ -132,6 +138,12 @@
             <div id="memo-icon" class="window-icon">
               <img src="icons/png/notepad_file-1.png" alt="备忘" />
               <span>备忘.txt</span>
+            </div>
+          </div>
+          <div id="d-drive-content" style="display: none">
+            <div id="credits-exe-icon" class="window-icon">
+              <img src="icons/png/application_hourglass-1.png" alt="制作人员名单" />
+              <span>制作人员名单.exe</span>
             </div>
           </div>
         </div>
@@ -526,6 +538,21 @@
           <!-- Calendar will be generated here by JS -->
         </div>
       </div>
+
+      <div class="window resizable maximized" id="creditsWindow">
+        <div class="window-titlebar">
+          <span class="window-title">制作人员名单.exe</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content">
+          <iframe id="credits-frame" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+      </div>
+
     </div>
 
     <!-- Start Menu -->
@@ -537,6 +564,7 @@
       <div class="start-menu-item" data-app="minesweeper">扫雷</div>
       <div class="start-menu-item" data-app="mediaPlayer">媒体播放器</div>
       <div class="start-menu-item" data-app="neuqBrowser">东北大学秦皇岛分校</div>
+      <div class="start-menu-item" data-app="creditsWindow">制作人员名单</div>
       <div class="start-menu-separator"></div>
       <div class="start-menu-item" data-app="logoff">注销(L)</div>
       <div class="start-menu-item" data-app="shutdown">关闭计算机(U)</div>

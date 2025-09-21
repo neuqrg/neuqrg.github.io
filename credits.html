@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>制作人员名单</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            font-family: 'JetBrains Mono', 'SimSun', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .credits-content {
+            padding: 20px;
+            column-count: 1;
+            column-gap: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .credit-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            height: fit-content;
+            break-inside: avoid;
+            margin-bottom: 10px;
+        }
+
+        .credit-entry.visible {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .credit-entry:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.1);
+            border-color: #00ff88;
+        }
+
+        .credit-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid #00ff88;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .credit-avatar-placeholder {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .credit-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .credit-name-role {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .credit-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #ffaa00;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+        }
+
+        .credit-name-role a.credit-link {
+            text-decoration: none;
+        }
+
+        .credit-name-role a.credit-link .credit-name {
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .credit-name-role a.credit-link:hover .credit-name {
+            color: #ffd700;
+        }
+
+        .credit-role {
+            font-size: 0.9em;
+            color: #66ccaa;
+            font-style: normal;
+            letter-spacing: 1px;
+        }
+
+        .credit-message {
+            font-size: 1em;
+            line-height: 1.1;
+            margin: 0;
+            color: #d0d0d0;
+            font-family: 'SimSun', '宋体', sans-serif;
+            text-indent: 1em;
+        }
+
+        .credit-showcase-image {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (min-width: 900px) {
+            .credits-content {
+                column-count: 2;
+                padding: 15px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .credits-content {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .credit-entry {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .credit-name-role {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="credits-content">
+        <!-- Credits will be injected by JS -->
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const staffCredits = [
+                { name: 'Komorebi', role: '发起人 / CHUNITHM 手元', bilibiliUID: 108540592, message:'我是2022/2025NEUQ招新手元发起人。\n虽然我已毕业，但很高兴在三年后又见到招新项目重新启动，与往年不同的是，今年尝试用单曲的形式将成果展现在各位眼前，表现力超乎我的预料，让我找回了大学时光中纯粹的快乐，以及实现音游同好会的“refresh”。\n感谢剪辑，感谢所有投稿人，感谢NEUQ。\n感谢您能看到这里。' ,avatar:'avatar/Komorebi.jpg'},
+                { name: 'MonianHello', role: '剪辑 / ARG程序 / 策划 / OSU!std 手元', message: '“即使世界线不同，人们也会做出相同的选择”\n有幸负责了本次手元的剪辑、解谜和ARG部分的制作，准备了很多细节，希望大家喜欢~\n【广告】校网安协会NEUQCSA 2025招新，问号CTF将于9月27日开赛。欢迎加入QQ群101796777了解详情。', avatar: 'avatar/MonianHello.jpg', bilibiliUID: 226256688 },
+                { name: 'Fgt9011L', role: 'Muse Dash 手元', message: '2022年招新手元剪辑前来报到。\n以一种奇特的时空连接的方式，两个集体展示链接在一起。见证了校内各位神的实力，也见证了新一期联合展示的强大技术力——构想新颖、主题突出、设计出色。\nNEUQ的音游联合展示不多，但一定会越来越好！而且不只是音游，各方面一定都会是！', avatar: 'avatar/Fgt9011L.jpg', bilibiliUID: 434023350 },
+                { name: 'HCNOx73', role: 'Paradigm: Reboot 手元', message: '你可能不认识我，但是你一定看过我写的谱', image: 'static/ff5f479e899eeed57007c0afb40bb8ae.jpg', avatar: 'avatar/HCNOx73.jpg', bilibiliUID: 1216976341 },
+                { name: 'xujintao', role: 'OSU!mania 手元', message: '欢迎大家来找我mp！神秘数字：34397951', avatar: 'avatar/xujintao.jpg', bilibiliUID: 440443176 },
+                { name: 'LH1341', role: 'Cytus II 手元', message: '关注NEUQ音游同好会谢谢喵', avatar: 'avatar/LH1341.jpg', bilibiliUID: 470362967 },
+                { name: 'E1_aina', role: 'OSU!mania 手元', bilibiliUID: 361901119, message:'希望NEUQ音游继续壮大喵。感谢Monian大佬剪辑的视频，太有创造力了',avatar:'avatar/E1_aina.png' },
+                { name: 'Weekend', role: 'Phira 手元', bilibiliUID: 470716769, message:'感谢大家的努力付出，给了临近毕业的我一个在neuq音游同好会存在过的证明。neuq音游同好会一定会越来越好的(・ω・)\n（话说什么时候能成立社团的说）',avatar:'avatar/Weekend.jpg' },                
+                { name: 'Tonoseihon', role: 'Cytus II 手元', bilibiliUID: 30555962, message:'作为马上毕业的大四老登，三年前，我正是看到2022年招新手元才加入了NEUQ音游同好会，如今能在毕业前看到招新手元重启并参与其中，我深感荣幸。在此感谢各位椰叶，感谢NEUQ，衷心祝愿NEUQ音游同好会越办越好。',avatar: 'avatar/Tonoseihon.png' },
+                { name: 'Qishui', role: 'Paradigm: Reboot 手元', message: '随时欢迎小登们线下深入♂交流', avatar: 'avatar/qishui.jpg', bilibiliUID: 291027434 },
+                { name: 'Oriqstr_', role: 'ONGEKI 手元', bilibiliUID: 335386601, message:'“提供了ONGEKI的手元，非常感谢！”',avatar:'avatar/Oriqstr_.jpg',   },
+                { name: 'Slime', role: 'Deemo II / OSU!mania 手元', bilibiliUID: 3935327, message:'“提供了Deemo II与OSU!mania的手元，非常感谢！”',avatar:'avatar/Slime.jpg'  },
+                { name: 'HeXyru', role: 'MAIMAI 手元', bilibiliUID: 1399299714, message:'“提供了MAIMAI的手元，非常感谢！”',avatar:'avatar/HeXyru.jpg'  },
+                // { name: 'joollya3y', role: '特别鸣谢', message: '“为ARG项目提供了最初的灵感和基础框架。”', avatar: 'avatar/joollya3y.jpg', bilibiliUID: 28929202 },
+                { name: 'You', role: '屏幕面前的你', message: '「Project Synthesis.」感谢你的参与！',avatar: 'avatar/default.png' }
+            ];
+
+            const contentArea = document.querySelector('.credits-content');
+            if (!contentArea) return;
+
+            staffCredits.forEach((person, index) => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'credit-entry';
+
+                let avatarHtml;
+                if (person.avatar) {
+                    avatarHtml = `<img src="${person.avatar}" alt="${person.name}" class="credit-avatar">`;
+                } else {
+                    avatarHtml = `<div class="credit-avatar-placeholder"></div>`;
+                }
+
+                const messageParagraphs = person.message
+                    .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                    .split('\n')
+                    .map(p => `<p class="credit-message">${p || '&nbsp;'}</p>`)
+                    .join('');
+
+                let imageHtml = '';
+                if (person.image) {
+                    imageHtml = `<img src="${person.image}" alt="${person.name} 手元" class="credit-showcase-image">`;
+                }
+
+                let nameHtml;
+                if (person.bilibiliUID) {
+                    nameHtml = `<a href="https://space.bilibili.com/${person.bilibiliUID}" target="_blank" rel="noopener noreferrer" class="credit-link">
+                                <span class="credit-name">${person.name}</span>
+                            </a>`;
+                } else {
+                    nameHtml = `<span class="credit-name">${person.name}</span>`;
+                }
+
+                entryDiv.innerHTML = `
+                ${avatarHtml}
+                <div class="credit-info">
+                    <div class="credit-name-role">
+                        ${nameHtml}
+                        <span class="credit-role">${person.role}</span>
+                    </div>
+                    ${messageParagraphs}
+                    ${imageHtml}
+                </div>
+            `;
+                contentArea.appendChild(entryDiv);
+
+                // Staggered animation
+                setTimeout(() => {
+                    entryDiv.classList.add('visible');
+                }, index * 2500);
+            });
+        });
+    </script>
+</body>
+
+</html>

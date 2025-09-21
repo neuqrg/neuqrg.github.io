@@ -912,6 +912,12 @@ body {
 }
 
 /* --- Icons Inside Windows --- */
+.drive-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .window-icon {
   display: inline-flex;
   flex-direction: column;
@@ -1167,7 +1173,8 @@ body {
 #minesweeper .window-content,
 #mediaPlayer .window-content,
 #imageViewer .window-content,
-#neuqBrowser .window-content {
+#neuqBrowser .window-content,
+#creditsWindow .window-content {
     padding: 0;
     margin: 0;
     border: none;
@@ -1584,7 +1591,6 @@ input[type=range]#timeline-slider::-moz-range-thumb {
     background-color: #e0e0e0;
 }
 
-
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
     .desktop {
@@ -1656,6 +1662,7 @@ input[type=range]#timeline-slider::-moz-range-thumb {
         padding: 20px;
         font-size: 0.9em;
     }
+
 }
 
 @media (max-width: 480px) {

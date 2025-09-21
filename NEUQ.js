@@ -37,6 +37,10 @@ let timelineOffsetMs = 0; // 时间线偏移量 (毫秒)
 const timelineStartDate = new Date('2022-08-23T00:00:00'); // 时间线起始日期
 let nextWindowOffset = { top: 30, left: 50 }; // For cascading window positions
 
+// --- 音效 ---
+const clickSound = new Audio('static/Applets/click-sound.mp3');
+clickSound.volume = 0.5;
+
 // 存储 ResizeObserver 实例，以便之后可以断开连接
 const paintResizeObserverMap = new Map();
 
@@ -61,8 +65,15 @@ const neuqMusicGameChatLog = [
     { user: '时光淡漠i', style: 'color: #00aaff; font-family: "SimSun";', text: '不会吧不会吧，不会真的有萌新吧' }
 ];
 
-
 // --- 核心函数 ---
+
+/**
+ * 播放点击音效
+ */
+function playClickSound() {
+    clickSound.currentTime = 0;
+    clickSound.play().catch(e => console.error("播放音效时出错:", e));
+}
 
 /**
  * 将窗口带到最前面并设为活动状态
@@ -114,6 +125,10 @@ async function openApp(appName, options = {}) {
         setTimeout(() => {
             if(desktopEnv) desktopEnv.style.display = 'none';
             if(shutdownScreen) shutdownScreen.style.display = 'flex';
+            // 5秒后关闭页面
+            setTimeout(() => {
+                window.close();
+            }, 5000);
         }, 500);
         return;
     }
@@ -178,6 +193,7 @@ async function openApp(appName, options = {}) {
             case 'networkStatus': iconSrc = 'icons/png/network_cool_two_pcs-0.png'; title = '连接状态'; break;
             case 'timelineControl': iconSrc = 'icons/png/channels-0.png'; title = '时空奇点'; break;
             case 'calendarWindow': iconSrc = 'icons/png/time_and_date-0.png'; title = '日期/时间 属性'; break;
+            case 'creditsWindow': iconSrc = 'icons/png/application_hourglass-1.png'; title = '制作人员名单'; break;
          }
     }
 
@@ -191,6 +207,7 @@ async function openApp(appName, options = {}) {
 
     // 为任务栏按钮添加点击事件
     taskbarButton.addEventListener('click', () => {
+        playClickSound();
         if (windowElement === activeWindow && windowElement.style.display !== 'none') {
              minimizeApp(appName);
         } else {
@@ -232,12 +249,15 @@ async function openApp(appName, options = {}) {
         windowElement.style.top = `${top}px`;
         windowElement.style.left = `${left}px`;
     } else { // Desktop cascading logic
-        windowElement.style.top = `${nextWindowOffset.top}px`;
-        windowElement.style.left = `${nextWindowOffset.left}px`;
-        nextWindowOffset.top += 25;
-        nextWindowOffset.left += 25;
-        if (nextWindowOffset.top > window.innerHeight / 2 || nextWindowOffset.left > window.innerWidth / 2) {
-            nextWindowOffset = { top: 30, left: 50 };
+        // For maximized windows, don't apply cascade positioning
+        if (!windowElement.classList.contains('maximized')) {
+            windowElement.style.top = `${nextWindowOffset.top}px`;
+            windowElement.style.left = `${nextWindowOffset.left}px`;
+            nextWindowOffset.top += 25;
+            nextWindowOffset.left += 25;
+            if (nextWindowOffset.top > window.innerHeight / 2 || nextWindowOffset.left > window.innerWidth / 2) {
+                nextWindowOffset = { top: 30, left: 50 };
+            }
         }
     }
 
@@ -271,6 +291,13 @@ async function openApp(appName, options = {}) {
     }
     else if (appName === 'calendarWindow') {
         initCalendar(windowElement);
+    }
+    else if (appName === 'creditsWindow') {
+        const iframe = document.getElementById('credits-frame');
+        // 仅在 iframe 尚未加载时设置其 src
+        if (iframe && !iframe.src) {
+            iframe.src = '/credits.html';
+        }
     }
 }
 
@@ -383,10 +410,11 @@ function toggleMaximize(appName) {
     if (windowEl.classList.contains('maximized')) {
         // Restore
         const oldPosition = JSON.parse(windowEl.dataset.oldPosition || '{}');
-        windowEl.style.top = oldPosition.top;
-        windowEl.style.left = oldPosition.left;
-        windowEl.style.width = oldPosition.width;
-        windowEl.style.height = oldPosition.height;
+        // If there's no old position data, restore to a default size and position.
+        windowEl.style.top = oldPosition.top || '50px';
+        windowEl.style.left = oldPosition.left || '100px';
+        windowEl.style.width = oldPosition.width || '640px';
+        windowEl.style.height = oldPosition.height || '480px';
         windowEl.classList.remove('maximized');
         if (maximizeButton) maximizeButton.textContent = '□';
         delete windowEl.dataset.oldPosition;
@@ -434,6 +462,7 @@ function initQicq(windowElement) {
     let qicqLoginAttempts = 0;
 
     loginBtn.addEventListener('click', () => {
+        playClickSound();
         if (pwInput.value === 'PROJECTSYNTHESIS') {
             statusMsg.style.color = 'green';
             statusMsg.textContent = '登录成功...';
@@ -463,17 +492,20 @@ function initQicq(windowElement) {
 
     forgotPasswordLink.addEventListener('click', (e) => {
         e.preventDefault();
+        playClickSound();
         openApp('qicqPasswordRecovery');
     });
     
     applyLink.addEventListener('click', (e) => {
         e.preventDefault();
+        playClickSound();
         statusMsg.style.color = 'red';
         statusMsg.textContent = '错误：此功能不可用。';
     });
 
 
     neuqChatItem.addEventListener('click', () => {
+        playClickSound();
         openApp('qicqChatNEUQ');
     });
 
@@ -498,6 +530,7 @@ function initPasswordRecovery(windowElement) {
     const revealDiv = windowElement.querySelector('#password-reveal');
 
     submitBtn.addEventListener('click', () => {
+        playClickSound();
         const q1Answer = q1.value.trim().toUpperCase();
         const q2Answered = Array.from(q2).some(r => r.checked);
         const q3Answered = Array.from(q3).some(r => r.checked);
@@ -596,7 +629,10 @@ function initQicqChat(windowElement) {
         historyDiv.scrollTop = historyDiv.scrollHeight;
     }
 
-    sendButton.addEventListener('click', sendMessage);
+    sendButton.addEventListener('click', () => {
+        playClickSound();
+        sendMessage();
+    });
     textarea.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -605,6 +641,7 @@ function initQicqChat(windowElement) {
     });
 
     closeButton.addEventListener('click', () => {
+        playClickSound();
         closeApp(windowElement.id);
     });
 }
@@ -671,6 +708,7 @@ function initNotepad(windowElement, initialContent) {
 
     // 保存功能
     saveButton.addEventListener('click', () => {
+        playClickSound();
         const textToSave = textarea.value;
         const blob = new Blob([textToSave], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
@@ -685,6 +723,7 @@ function initNotepad(windowElement, initialContent) {
 
     // 导入功能
     importButton.addEventListener('click', () => {
+        playClickSound();
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.txt,text/plain';
@@ -707,6 +746,7 @@ function initNotepad(windowElement, initialContent) {
 // 为所有桌面图标添加点击事件 (包括应用和链接)
 icons.forEach(icon => {
     icon.addEventListener('click', () => {
+        playClickSound();
         const appName = icon.getAttribute('data-app');
         if (appName) {
             openApp(appName);
@@ -720,6 +760,9 @@ icons.forEach(icon => {
 document.querySelectorAll('.start-menu-item').forEach(item => {
     item.addEventListener('click', () => {
         const appName = item.getAttribute('data-app');
+        if (appName !== 'logoff' && appName !== 'shutdown') {
+            playClickSound();
+        }
         if (appName) openApp(appName);
         startMenu.classList.remove('active');
     });
@@ -728,6 +771,7 @@ document.querySelectorAll('.start-menu-item').forEach(item => {
 // 为开始按钮添加点击事件
 startButton.addEventListener('click', (e) => {
     e.stopPropagation();
+    playClickSound();
     startMenu.classList.toggle('active');
     if (startMenu.classList.contains('active')) {
         highestZIndex++;
@@ -747,15 +791,15 @@ windows.forEach(windowElement => {
 
     // 关闭按钮
     if (closeButton) {
-        closeButton.addEventListener('click', (e) => { e.stopPropagation(); closeApp(windowElement.id); });
+        closeButton.addEventListener('click', (e) => { e.stopPropagation(); playClickSound(); closeApp(windowElement.id); });
     }
     // 最小化按钮
     if (minimizeButton) {
-        minimizeButton.addEventListener('click', (e) => { e.stopPropagation(); minimizeApp(windowElement.id); });
+        minimizeButton.addEventListener('click', (e) => { e.stopPropagation(); playClickSound(); minimizeApp(windowElement.id); });
     }
     // 最大化按钮
     if (maximizeButton) {
-        maximizeButton.addEventListener('click', (e) => { e.stopPropagation(); toggleMaximize(windowElement.id); });
+        maximizeButton.addEventListener('click', (e) => { e.stopPropagation(); playClickSound(); toggleMaximize(windowElement.id); });
     }
 
     // 窗口拖动逻辑 (支持鼠标和触摸)
@@ -944,6 +988,7 @@ function initSimplePaintApp(windowElement) {
 
     colorSwatches.forEach(swatch => {
         swatch.addEventListener('click', () => {
+            playClickSound();
             ctx.strokeStyle = swatch.dataset.color || 'black'; currentStrokeStyle = ctx.strokeStyle;
             colorSwatches.forEach(s => s.classList.remove('active')); swatch.classList.add('active');
             if (swatch.dataset.color === 'white') {
@@ -960,6 +1005,7 @@ function initSimplePaintApp(windowElement) {
     });
     sizeButtons.forEach(button => {
         button.addEventListener('click', () => {
+            playClickSound();
             ctx.lineWidth = parseInt(button.dataset.size || '2', 10); currentLineWidth = ctx.lineWidth;
             sizeButtons.forEach(s => s.classList.remove('active')); button.classList.add('active');
             const eraser = Array.from(colorSwatches).find(s => s.dataset.color === 'white');
@@ -972,9 +1018,11 @@ function initSimplePaintApp(windowElement) {
         });
     });
     clearButton.addEventListener('click', () => {
+        playClickSound();
         ctx.fillStyle = 'white'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     });
     saveButton.addEventListener('click', () => {
+        playClickSound();
         const dataUrl = canvas.toDataURL('image/png');
         const a = document.createElement('a');
         a.href = dataUrl;
@@ -985,10 +1033,12 @@ function initSimplePaintApp(windowElement) {
     });
 
     aboutButton.addEventListener('click', () => {
+        playClickSound();
         openApp('paintAbout');
     });
 
     glitchButton.addEventListener('click', () => {
+        playClickSound();
         if (drawingInterval) clearInterval(drawingInterval); // Clear previous animation if any
         
         const text = 'γ4β3α1(2/4)';
@@ -1200,8 +1250,8 @@ function initMinesweeperGame(windowElement) {
         updateFlagCount();
     }
     
-    resetButton.addEventListener('click', resetGame);
-    cheatButton.addEventListener('click', forceWin);
+    resetButton.addEventListener('click', () => { playClickSound(); resetGame(); });
+    cheatButton.addEventListener('click', () => { playClickSound(); forceWin(); });
     resetGame();
 }
 
@@ -1212,27 +1262,57 @@ function initMinesweeperGame(windowElement) {
 function initMyComputer(windowElement) {
     const cDriveIcon = windowElement.querySelector('#c-drive-icon');
     const cDriveContent = windowElement.querySelector('#c-drive-content');
+    const dDriveIcon = windowElement.querySelector('#d-drive-icon');
+    const dDriveContent = windowElement.querySelector('#d-drive-content');
     const secretImageIcon = windowElement.querySelector('#secret-image-icon');
     const memoIcon = windowElement.querySelector('#memo-icon');
-    if (!cDriveIcon || !cDriveContent || !secretImageIcon || !memoIcon) return;
-    cDriveIcon.addEventListener('click', () => {
-        cDriveIcon.style.display = 'none'; cDriveContent.style.display = 'block';
-    });
-    secretImageIcon.addEventListener('click', () => {
-        const imageViewerWindow = document.getElementById('imageViewer');
-        const imageViewerImg = document.getElementById('image-viewer-img');
-        const imageViewerTitle = document.getElementById('image-viewer-title');
-        if (!imageViewerWindow || !imageViewerImg || !imageViewerTitle) { alert("图片查看器已损坏！"); return; }
-        imageViewerImg.src = 'static/(4-4).png';
-        imageViewerImg.alt = '不要给任何人看.jpg';
-        imageViewerTitle.textContent = '不要给任何人看.jpg - 图片查看器';
-        openApp('imageViewer');
-    });
-    memoIcon.addEventListener('click', () => {
-        const hint = `「如果有一天你不再记得自己爱过谁、伤害过谁、为何流泪——别怕，*未来*的我在记事本里为我们保管了所有答案。」`;
-        openApp('notepad', { content: hint });
-    });
-    cDriveIcon.style.display = 'inline-flex'; cDriveContent.style.display = 'none';
+    const creditsExeIcon = windowElement.querySelector('#credits-exe-icon');
+
+    if (!cDriveIcon || !cDriveContent || !secretImageIcon || !memoIcon || !dDriveIcon || !dDriveContent || !creditsExeIcon) return;
+
+    if (!windowElement.dataset.myComputerInitialized) {
+        cDriveIcon.addEventListener('click', () => {
+            playClickSound();
+            cDriveIcon.parentElement.style.display = 'none'; // Hide drive-container
+            cDriveContent.style.display = 'block';
+        });
+
+        dDriveIcon.addEventListener('click', () => {
+            playClickSound();
+            cDriveIcon.parentElement.style.display = 'none'; // Hide drive-container
+            dDriveContent.style.display = 'block';
+        });
+
+        secretImageIcon.addEventListener('click', () => {
+            playClickSound();
+            const imageViewerWindow = document.getElementById('imageViewer');
+            const imageViewerImg = document.getElementById('image-viewer-img');
+            const imageViewerTitle = document.getElementById('image-viewer-title');
+            if (!imageViewerWindow || !imageViewerImg || !imageViewerTitle) { alert("图片查看器已损坏！"); return; }
+            imageViewerImg.src = 'static/(4-4).png';
+            imageViewerImg.alt = '不要给任何人看.jpg';
+            imageViewerTitle.textContent = '不要给任何人看.jpg - 图片查看器';
+            openApp('imageViewer');
+        });
+
+        memoIcon.addEventListener('click', () => {
+            playClickSound();
+            const hint = `「如果有一天你不再记得自己爱过谁、伤害过谁、为何流泪——别怕，*未来*的我在记事本里为我们保管了所有答案。」`;
+            openApp('notepad', { content: hint });
+        });
+
+        creditsExeIcon.addEventListener('click', () => {
+            playClickSound();
+            openApp('creditsWindow');
+        });
+
+        windowElement.dataset.myComputerInitialized = 'true';
+    }
+
+    // Reset view every time the app is opened
+    cDriveIcon.parentElement.style.display = 'flex'; // Show drive-container
+    cDriveContent.style.display = 'none';
+    dDriveContent.style.display = 'none';
 }
 
 // --- Bilibili 播放器 (媒体播放器) 逻辑 ---
@@ -1296,6 +1376,7 @@ function initMediaPlayer(windowElement) {
 
     // 加载按钮点击事件
     loadButton.addEventListener('click', () => {
+        playClickSound();
         const videoUrl = urlInput.value.trim();
         if (videoUrl) {
             showPlayerMessage("正在加载视频...");
@@ -1342,13 +1423,13 @@ function updateClock() {
 
 function initTrayIcons() {
     if (volumeIcon) {
-        volumeIcon.addEventListener('click', () => openApp('volumeControl'));
+        volumeIcon.addEventListener('click', () => { playClickSound(); openApp('volumeControl'); });
     }
     if (networkIcon) {
-        networkIcon.addEventListener('click', () => openApp('networkStatus'));
+        networkIcon.addEventListener('click', () => { playClickSound(); openApp('networkStatus'); });
     }
     if (taskbarClock) {
-        taskbarClock.addEventListener('click', () => openApp('calendarWindow'));
+        taskbarClock.addEventListener('click', () => { playClickSound(); openApp('calendarWindow'); });
     }
 }
 
@@ -1525,64 +1606,79 @@ function initBootSequence() {
             synthesisLoader.style.display = 'none';
         }, 700);
 
-        // 2. 显示 Win98 加载器并开始实时加载
+        // 2. 显示 Win98 加载器并开始加载
         win98Loader.style.display = 'flex';
         const progressBar = win98Loader.querySelector('.win98-progress-bar');
         
-        // --- 实时加载逻辑 ---
-        const imagesToLoad = Array.from(document.images);
+        // --- 资源加载与进度条逻辑 ---
+        const imagesToLoad = Array.from(document.images).filter(img => !img.closest('#synthesis-loader')); // Don't wait for splash screen images
         const totalResources = imagesToLoad.length;
         let loadedResources = 0;
-        let loadingFinished = false;
+        let bootFinalized = false;
 
-        const finishLoading = () => {
-            if (loadingFinished) return;
-            loadingFinished = true;
-
-            progressBar.style.width = '100%';
-            const randomDelay = Math.random() * 1500 + 500; // 0.5s to 2s
+        // 阶段三：在资源加载完毕后，从 80% 动画到 100% 并显示桌面
+        const finalizeBoot = () => {
+            if (bootFinalized) return;
+            bootFinalized = true;
             
+            // 此时进度条已完成到 80% 的动画，现在开始最终的启动动画
+            const randomDelay = Math.random() * 2000 + 1000; // 1秒到3秒的随机延迟
+            progressBar.style.transition = `width ${randomDelay}ms ease-out`;
+            progressBar.style.width = '100%';
+
             setTimeout(() => {
                 win98Loader.style.opacity = '0';
                 setTimeout(() => {
                     win98Loader.style.display = 'none';
                     desktopEnvironment.style.display = 'block';
+                    // 播放启动音乐
+                    const bootSound = new Audio('static/Applets/Falcom Sound Team J.D.K. - おやすみ.mp3');
+                    bootSound.play().catch(e => console.error("无法播放启动音乐:", e));
                     console.log("Mindose25加载完成");
                     setInterval(updateClock, 1000);
                     updateClock();
                     initTrayIcons();
-                }, 700);
+                }, 700); // 渐隐动画时长
             }, randomDelay);
         };
-
-        const updateProgressBar = () => {
+        
+        // 阶段二：当所有资源加载完成时调用
+        const onResourcesLoaded = () => {
+            // 确保进度条动画到 80%
+            progressBar.style.width = '80%';
+            // CSS 中的 transition 是 0.4s，我们等待它完成后再开始最终启动
+            setTimeout(finalizeBoot, 450);
+        };
+        
+        // 阶段一：更新 0-80% 的进度
+        const updateProgress = () => {
+            if (bootFinalized || loadedResources >= totalResources) return;
+            
             if (totalResources > 0) {
-                const percentage = Math.min(100, (loadedResources / totalResources) * 100);
-                progressBar.style.width = `${percentage}%`;
-            }
-            if (loadedResources >= totalResources) {
-                finishLoading();
+                const displayPercentage = (loadedResources / totalResources) * 80;
+                progressBar.style.width = `${displayPercentage}%`;
             }
         };
 
-        if (totalResources === 0) {
-            finishLoading();
+        if (imagesToLoad.every(img => img.complete)) {
+            // 如果所有图片都已缓存，直接进入资源加载完成阶段
+            onResourcesLoaded();
         } else {
             imagesToLoad.forEach(img => {
-                if (img.complete) {
+                const resourceLoaded = () => {
                     loadedResources++;
+                    updateProgress();
+                    if (loadedResources >= totalResources) {
+                        onResourcesLoaded();
+                    }
+                };
+                if (img.complete) {
+                    resourceLoaded();
                 } else {
-                    img.onload = () => {
-                        loadedResources++;
-                        updateProgressBar();
-                    };
-                    img.onerror = () => {
-                        loadedResources++; // 将错误也计为“已加载”，以防启动过程被阻止
-                        updateProgressBar();
-                    };
+                    img.addEventListener('load', resourceLoaded, { once: true });
+                    img.addEventListener('error', resourceLoaded, { once: true });
                 }
             });
-            updateProgressBar(); // 为已缓存的图像进行初始更新
         }
     });
 }
