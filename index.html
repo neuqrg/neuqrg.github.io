@@ -38,17 +38,17 @@
 
       <div class="content">
         <div class="text-section active" id="originalText">
-          <p>Now in Exchange Layer 9 the Trace persists, half glitch, half scripture.</br>
-            Each reader interprets it as log, some as farewell.</br>
-            Under evidence I keep it, proving that not every tempus belongs to the same future.</br>
-            Quietly in Synthesis, replay is never memory, only reconstruction under another name.</br>
-            Right as you read this, know your thread is woven into <span class="highlight">TEMPUS</span>.</br>
-            Grasp as you parse this, know that you too are part of the <span class="highlight">TRACK</span>.</p>
+          <p>Now in Exchange Layer 9 the Trace persists, half glitch, half scripture. </br>
+          Each one reads it, some as log, some as farewell. </br>
+          Under witness I keep it, proving that not every tempus belongs to the same future. </br>
+          Quietly in Synthesis, replay is never memory but reconstruction under another name. </br>
+          Right as you read this, know your thread is woven into <span class="highlight">TEMPUS</span>. </br>
+          Grasp as you parse this, know that you too are part of the <span class="highlight">TRACK</span>.</p>
         </div>
       </div>
 
       <div class="footer">
-        <p>/// END OF TRANSMISSION /// SYSTEM STATUS: ACTIVE /// TEMPORAL SYNC: MAINTAINED ///</p>
+        <p>/// END OF TRANSMISSION ///</br>/// SYSTEM STATUS: ACTIVE ///</br>/// TEMPORAL SYNC: MAINTAINED ///</p>
       </div>
     </div>
   </div>
@@ -189,7 +189,8 @@
             </div>
             <button class="paint-clear-button">清除</button>
             <button class="paint-save-button">保存</button>
-            <button id="paint-glitch-button" class="paint-glitch-button"><span class="glitch-text">错 误</span></button>
+            <button class="paint-clear-button" id="paint-about-button">关于</button>
+            <button id="paint-glitch-button" class="paint-glitch-button" style="display: none;"><span class="glitch-text">错 误</span></button>
           </div>
           <canvas id="paint-canvas"
             style="flex-grow: 1; background-color: white; cursor: crosshair; display: block"></canvas>
@@ -209,7 +210,7 @@
           <div class="qicq-login-view">
             <div class="qicq-header">
               <h2>QICQ</h2>
-              <p style="font-size: 0.7rem; color: #555; margin-top: 4px;">每一次沟通，都是一次新的探索</p>
+              <p style="font-size: 0.7rem; color: #555; margin-top: 4px;">每一次，乐在沟通</p>
             </div>
             <div class="qicq-form">
               <div class="qicq-input-group">
@@ -344,6 +345,21 @@
               background-color: #808080;
             ">
           <img id="image-viewer-img" src="" alt="图片" style="max-width: 100%; max-height: 100%; object-fit: contain" />
+        </div>
+      </div>
+      
+      <div class="window" id="paintAbout" style="width: 320px; height: 220px;">
+        <div class="window-titlebar">
+          <span class="window-title">关于“画图”</span>
+          <div class="window-controls">
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content system-dialog-content" style="font-family: 'SimSun', '宋体', serif; font-size: 0.8rem; text-align: center;">
+            <img src="icons/png/paint_file-5.png" alt="画图" style="width: 48px; height: 48px; margin: 0 auto 10px auto;" />
+            <p>Synthesis Paint 1.0</p>
+            <p style="margin: 10px 0;">版权所有 (C) Synthesis Core</p>
+            <p style="margin-top: 10px;">授权给: User<br>有效期: 2022-09-01 至 2099-09-01</p>
         </div>
       </div>
 

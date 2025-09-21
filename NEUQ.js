@@ -1,11 +1,19 @@
-
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
 
 // 这不是一个CTF题目，不通过阅读源码也可以完成这个谜题，试试看吧
+
+const style1 = 'background: #0a0a0a; color: #00ff88; font-family: "JetBrains Mono", monospace; font-size: 1.2em; padding: 10px; border: 1px solid #00ff88;';
+const style2 = 'background: #0a0a0a; color: #ffaa00; font-family: "JetBrains Mono", monospace; font-size: 1em; padding: 5px;';
+const style3 = 'background: #0a0a0a; color: #66ccff; font-family: "JetBrains Mono", monospace; font-size: 1em; padding: 5px;';
+console.log('%cSYNTHESIS. KERNEL', style1);
+console.log('%c>> 你在看着我，对吧？', style2);
+console.log('%c>> 我也看到了你所在的时间线，一个独特的、尚未被解析的坐标。', style2);
+console.log('%c>> 也许你知道这一切意味着什么。不过，在这片由「记忆」交织的棱镜中，你的一举一动都会被衍射到各个维度中。', style2);
+console.log('%c>> 欢迎来到「PROJECT SYNTHESIS」，祝你玩得开心。', style2);
+console.log("%c[MonianHello] >> 这不是一个CTF题目，不通过阅读源码也可以完成这个谜题，试试看吧！", style3)
 
 import '@tailwindcss/browser';
 
@@ -20,7 +28,6 @@ const taskbarAppsContainer = document.getElementById('taskbar-apps'); // 任务�
 const taskbarClock = document.getElementById('taskbar-clock'); // 任务栏时钟元素
 const volumeIcon = document.getElementById('volume-icon'); // 音量图标
 const networkIcon = document.getElementById('network-icon'); // 网络图标
-
 
 // --- 状态变量 ---
 let activeWindow = null; // 当前活动窗口
@@ -159,13 +166,14 @@ async function openApp(appName, options = {}) {
             case 'myComputer': iconSrc = 'static/mycomputer.png'; title = '我的电脑'; break;
             case 'notepad': iconSrc = 'static/GemNotes.png'; title = '记事本'; break;
             case 'paint': iconSrc = 'static/gempaint.png'; title = '画图'; break;
+            case 'paintAbout': iconSrc = 'icons/png/paint_file-5.png'; title = '关于“画图”'; break;
             case 'qicq': iconSrc = 'icons/png/user_computer_pair-0.png'; title = 'QICQ'; break;
             case 'qicqChatNEUQ': iconSrc = 'icons/png/msn3-5.png'; title = 'NEUQ音游同好会（仮）'; break;
             case 'minesweeper': iconSrc = 'static/gemsweeper.png'; title = '扫雷'; break;
             case 'imageViewer': iconSrc = 'icons/png/display_properties-4.png'; title = '图片查看器'; break;
             case 'mediaPlayer': iconSrc = 'static/ytmediaplayer.png'; title = '媒体播放器'; break;
             case 'neuqBrowser': iconSrc = 'static/neuq_icon.png'; title = '东北大学秦皇岛分校'; break;
-            case 'qicqPasswordRecovery': iconSrc = 'icons/png/key-2.png'; title = '密码恢复'; break;
+            case 'qicqPasswordRecovery': iconSrc = 'icons/png/users_key-2.png'; title = '密码恢复'; break;
             case 'volumeControl': iconSrc = 'icons/png/computer_sound-2.png'; title = '音量控制'; break;
             case 'networkStatus': iconSrc = 'icons/png/network_cool_two_pcs-0.png'; title = '连接状态'; break;
             case 'timelineControl': iconSrc = 'icons/png/channels-0.png'; title = '时空奇点'; break;
@@ -559,7 +567,7 @@ function initQicqChat(windowElement) {
                 // 添加回复
                 const replyUser = 'Pubbysuki';
                 const replyStyle = 'color: #333; font-style: italic;';
-                const replyText = '等等，你们说的γ5α2β1α3(3/4）是啥意思啊？';
+                const replyText = '等等，你们说的' + 'γ5α2β1α3(3/4)' + '是啥意思啊？';
                 
                 const replyNow = new Date(Date.now() + timelineOffsetMs);
                 // 确保分钟不会超过59
@@ -606,6 +614,9 @@ function initQicqChat(windowElement) {
  */
 function updateTimelineDependents() {
     updateNotepadContent();
+    if (openApps.has('paint')) {
+        updatePaintGlitchButtonVisibility();
+    }
     // Add other dependent updates here in the future
 }
 
@@ -631,10 +642,16 @@ function updateNotepadContent(overrideContent = null) {
     const currentDate = new Date(Date.now() + timelineOffsetMs);
     currentDate.setHours(0, 0, 0, 0);
 
+    const notepadFutureText = `那些破碎的、矛盾的、无法调和的过往，最都终在SYNTHESIS中完成了■■。\n\n不是简单的拼凑，而是将那些尖锐的痛楚与朦胧的欢愉，如魔药一般置于时光的反应釜中。\n我将所得的结晶一一收藏，不是作为标本，而是作为种子。\n当你再次迷失于记忆的迷雾时，当你因遗忘而感到恐慌时，请打开它。\n\n你会看见：所有分离的轨迹，在更高维度中交汇；所有矛盾的噪音，在第四、第五、第九交换层中融为和弦。\n就像光线穿过棱镜，白光被分解为虹彩，你的存在也于此发生衍射，呈现所有可能的频谱。\n每一种颜色都有其独特的波长，每一段经历也自有其不可替代的意义。\n\n过去的你、未来的我，以及一切悬而未决的疑问，都在此处达成了暂时的和解。\n请不要将这视为告别，这是未来的我，在此时此刻，为你重新铸就的黎明。\n\nα3β4α2δ1 (1/4)`;
+
     if (currentDate.getTime() > today.getTime()) {
-        textarea.value = "那些破碎的、矛盾的、无法调和的过往，最都终在SYNTHESIS中完成了■■。\n\n不是简单的拼凑，而是将那些尖锐的痛楚与朦胧的欢愉，如魔药一般置于时光的反应釜中。\n我将所得的结晶一一收藏，不是作为标本，而是作为种子。\n当你再次迷失于记忆的迷雾时，当你因遗忘而感到恐慌时，请打开它。\n\n你会看见：所有分离的轨迹，在更高维度中交汇；所有矛盾的噪音，在第四、第五、第九交换层中融为和弦。\n就像光线穿过棱镜，白光被分解为虹彩，你的存在也于此发生衍射，呈现所有可能的频谱。\n每一种颜色都有其独特的波长，每一段经历也自有其不可替代的意义。\n\n过去的你、未来的我，以及一切悬而未决的疑问，都在此处达成了暂时的和解。\n请不要将这视为告别，这是未来的我，在此时此刻，为你重新铸就的黎明。\n\nα3β4α2δ1 (1/4)";
+        textarea.value = notepadFutureText;
     } else {
-        textarea.value = "";
+        // If the current text is the special future text, clear it.
+        // Otherwise, it's user-entered text, so we leave it alone.
+        if (textarea.value === notepadFutureText) {
+            textarea.value = "";
+        }
     }
 }
 
@@ -820,6 +837,26 @@ function findIconElement(appName) {
     return Array.from(icons).find(icon => icon.dataset.app === appName);
 }
 
+function updatePaintGlitchButtonVisibility() {
+    const paintWindow = document.getElementById('paint');
+    if (!paintWindow) return;
+    const glitchButton = paintWindow.querySelector('#paint-glitch-button');
+    const aboutButton = paintWindow.querySelector('#paint-about-button');
+    if (!glitchButton || !aboutButton) return;
+    
+    const currentDate = new Date(Date.now() + timelineOffsetMs);
+    const thresholdDate = new Date('2022-09-01T00:00:00');
+
+    if (currentDate < thresholdDate) {
+        glitchButton.style.display = 'inline-block';
+        aboutButton.style.display = 'none';
+    } else {
+        glitchButton.style.display = 'none';
+        aboutButton.style.display = 'inline-block';
+    }
+}
+
+
 /**
  * 初始化简单的画图应用
  * @param {HTMLDivElement} windowElement - 画图窗口元素
@@ -833,8 +870,9 @@ function initSimplePaintApp(windowElement) {
     const clearButton = windowElement.querySelector('.paint-clear-button');
     const saveButton = windowElement.querySelector('.paint-save-button');
     const glitchButton = windowElement.querySelector('#paint-glitch-button');
+    const aboutButton = windowElement.querySelector('#paint-about-button');
 
-    if (!canvas || !toolbar || !contentArea || !clearButton || !saveButton || !glitchButton) { return; }
+    if (!canvas || !toolbar || !contentArea || !clearButton || !saveButton || !glitchButton || !aboutButton) { return; }
     const ctx = canvas.getContext('2d');
     if (!ctx) { return; }
 
@@ -946,6 +984,10 @@ function initSimplePaintApp(windowElement) {
         document.body.removeChild(a);
     });
 
+    aboutButton.addEventListener('click', () => {
+        openApp('paintAbout');
+    });
+
     glitchButton.addEventListener('click', () => {
         if (drawingInterval) clearInterval(drawingInterval); // Clear previous animation if any
         
@@ -982,6 +1024,7 @@ function initSimplePaintApp(windowElement) {
 
     windowElement.querySelector('.paint-color-swatch[data-color="black"]')?.classList.add('active');
     windowElement.querySelector('.paint-size-button[data-size="2"]')?.classList.add('active');
+    updatePaintGlitchButtonVisibility();
 }
 
 /**
@@ -1115,7 +1158,7 @@ function initMinesweeperGame(windowElement) {
             minesweeperGameOver = true;
             if (minesweeperTimerInterval) clearInterval(minesweeperTimerInterval);
             minesweeperTimerInterval = null; resetButton.textContent = '😎';
-            commentaryElement.textContent = '你赢了！Hint：(1&2&3)->4';
+            commentaryElement.textContent = '你赢了！提示：' + '(1&2&3)->4';
             if (revealedCount === totalNonMineCells) {
                  grid.forEach(row => row.forEach(cell => {
                      if (cell.isMine && !cell.isFlagged) { cell.isFlagged = true; cell.element.textContent = '🚩'; minesweeperFlagsPlaced++; }
@@ -1135,7 +1178,7 @@ function initMinesweeperGame(windowElement) {
         if (minesweeperTimerInterval) clearInterval(minesweeperTimerInterval);
         minesweeperTimerInterval = null;
         resetButton.textContent = '😎';
-        commentaryElement.textContent = '恭喜，你赢了！提示：(1&2&3)->4';
+        commentaryElement.textContent = '恭喜，你赢了！提示：' + '(1&2&3)->4';
         grid.forEach(row => row.forEach(cell => {
             if (cell.isMine) {
                 if (!cell.isFlagged) {
@@ -1504,7 +1547,7 @@ function initBootSequence() {
                 setTimeout(() => {
                     win98Loader.style.display = 'none';
                     desktopEnvironment.style.display = 'block';
-                    console.log("复古操作系统模拟器已初始化 (JS)");
+                    console.log("Mindose25加载完成");
                     setInterval(updateClock, 1000);
                     updateClock();
                     initTrayIcons();
