@@ -39,7 +39,7 @@ let nextWindowOffset = { top: 30, left: 50 }; // For cascading window positions
 
 // --- 音效 ---
 const clickSound = new Audio('static/Applets/click-sound.mp3');
-clickSound.volume = 0;
+clickSound.volume = 0.2;
 
 // 存储 ResizeObserver 实例，以便之后可以断开连接
 const paintResizeObserverMap = new Map();
