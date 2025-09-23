@@ -54,7 +54,7 @@ let minesweeperGridSize = { rows: 9, cols: 9 }; // 棋盘大小 (默认为 9x9)
 let minesweeperFirstClick = true; // 是否是第一次点击，以确保第一次不会点到雷
 
 // --- Bilibili 播放器状态 ---
-const DEFAULT_BILIBILI_URL = 'https://www.bilibili.com/video/BV1GJ411x7h7'; // 默认Bilibili视频
+const DEFAULT_BILIBILI_URL = 'https://www.bilibili.com/video/BV1KbnAzXEGn'; // 默认Bilibili视频
 
 // --- QICQ 聊天记录 ---
 const neuqMusicGameChatLog = [
